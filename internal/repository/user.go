@@ -1,50 +1,36 @@
-package repo
+package repository
 
 import (
-	"errors"
 	"slices"
 
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
 )
 
-type RepoUser struct {
+type UserRepository struct {
 	data []model.User
 }
 
-func NewRepoUser(data []model.User) *RepoUser {
-	return &RepoUser{data}
+func NewUserRepository(data []model.User) *UserRepository {
+	return &UserRepository{data}
 }
 
-func (r *RepoUser) Create(new model.User) error {
-	if index := slices.IndexFunc(r.data, func(user model.User) bool {
-		return user.Email == new.Email
-	}); index >= 0 {
-		return errors.New("Email already exists")
-	}
-
+func (r *UserRepository) Add(new model.User) {
 	r.data = append(r.data, new)
-
-	return nil
 }
 
-func (r *RepoUser) FindAll() ([]model.User, error) {
-	return slices.Clone(r.data), nil
+func (r *UserRepository) FindAll() []model.User {
+	return slices.Clone(r.data)
 }
 
-func (r *RepoUser) Auth(email string, password model.Password) (*model.User, error) {
+func (r *UserRepository) Find(email string) *model.User {
 	index := slices.IndexFunc(r.data, func(user model.User) bool {
 		return user.Email == email
 	})
 
 	if index < 0 {
-		return nil, errors.New("Email is not registered")
+		return nil
 	}
 
 	user := r.data[index]
-
-	if user.Password != password {
-		return nil, errors.New("Wrong password")
-	}
-
-	return &user, nil
+	return &user
 }
