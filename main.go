@@ -7,25 +7,38 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/ryansuhartanto/koda-b8-backend1/internal/db"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/di"
 )
 
-func main() {
-	// Load .env
+func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
+}
 
-	// PostgreSQL
-	ctx := context.Background()
+var ctx context.Context
+var pool *pgxpool.Pool
 
-	conn, err := pgxpool.New(ctx, "")
+func init() {
+	var err error
+	ctx = context.Background()
+	pool, err = pgxpool.New(ctx, "")
 	if err != nil {
-		log.Fatal("Unable to connect to database", err)
+		panic(err)
 	}
-	defer conn.Close()
 
+	m, err := db.Migrate(pool)
+	if err != nil {
+		panic(err)
+	}
+	defer m.Close()
+
+	m.Up()
+}
+
+func main() {
 	r := gin.Default()
 	container := di.NewContainer()
 
