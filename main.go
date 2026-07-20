@@ -30,5 +30,20 @@ func main() {
 		ctx.JSON(http.StatusOK, users)
 	})
 
+	r.POST("/users", func(ctx *gin.Context) {
+		var new model.User
+		if err := ctx.ShouldBindJSON(&new); err != nil {
+			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if err := repoUser.Create(new); err != nil {
+			ctx.JSON(http.StatusConflict, err.Error())
+			return
+		}
+
+		ctx.JSON(http.StatusCreated, new)
+	})
+
 	r.Run("0.0.0.0:8080")
 }
