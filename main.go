@@ -45,5 +45,24 @@ func main() {
 		ctx.JSON(http.StatusCreated, new)
 	})
 
+	r.POST("/auth", func(ctx *gin.Context) {
+		var auth struct {
+			Email    string         `json:"email" binding:"required"`
+			Password model.Password `json:"password" binding:"required"`
+		}
+		if err := ctx.ShouldBindJSON(&auth); err != nil {
+			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		user, err := repoUser.Auth(auth.Email, auth.Password)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, err.Error())
+			return
+		}
+
+		ctx.JSON(http.StatusOK, *user)
+	})
+
 	r.Run("0.0.0.0:8080")
 }
