@@ -30,7 +30,7 @@ func main() {
 		ctx.JSON(http.StatusOK, users)
 	})
 
-	r.POST("/users", func(ctx *gin.Context) {
+	r.POST("/users/register", func(ctx *gin.Context) {
 		var new model.User
 		if err := ctx.ShouldBindJSON(&new); err != nil {
 			ctx.JSON(http.StatusBadRequest, err.Error())
@@ -45,7 +45,7 @@ func main() {
 		ctx.JSON(http.StatusCreated, new)
 	})
 
-	r.POST("/auth", func(ctx *gin.Context) {
+	r.POST("/users/auth", func(ctx *gin.Context) {
 		var auth struct {
 			Email    string         `json:"email" binding:"required"`
 			Password model.Password `json:"password" binding:"required"`
