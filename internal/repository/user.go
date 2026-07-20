@@ -4,7 +4,7 @@ import (
 	"errors"
 	"slices"
 
-	"github.com/ryansuhartanto/koda-b8-backend1/model"
+	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
 )
 
 type RepoUser struct {

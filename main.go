@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ryansuhartanto/koda-b8-backend1/model"
-	"github.com/ryansuhartanto/koda-b8-backend1/repo"
+	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
+	repo "github.com/ryansuhartanto/koda-b8-backend1/internal/repository"
 )
 
 func main() {
