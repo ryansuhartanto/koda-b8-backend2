@@ -53,7 +53,7 @@ var ErrPasswordIncorrect = errors.New("service: password is incorrect")
 
 func (s *UserService) Login(auth model.Auth) (*model.UserIdentified, error) {
 	user, err := s.repository.FindEmail(s.ctx, auth.Email)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
 
