@@ -51,7 +51,7 @@ func (s *UserService) Register(new model.User) error {
 var ErrEmailUnregistered = errors.New("service: email is not registered")
 var ErrPasswordIncorrect = errors.New("service: password is incorrect")
 
-func (r *UserService) Auth(email string, password model.Password) (*model.User, error) {
+func (r *UserService) Login(email string, password model.Password) (*model.User, error) {
 	user, err := r.repository.Find(r.ctx, email)
 	if err != nil {
 		return nil, err

@@ -49,7 +49,7 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, new)
 }
 
-func (h *UserHandler) HandleAuth(ctx *gin.Context) {
+func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 	var auth struct {
 		Email    string         `json:"email" binding:"required"`
 		Password model.Password `json:"password" binding:"required"`
@@ -59,7 +59,7 @@ func (h *UserHandler) HandleAuth(ctx *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Auth(auth.Email, auth.Password)
+	user, err := h.service.Login(auth.Email, auth.Password)
 	if err != nil {
 		var status int
 		if errors.Is(err, service.ErrEmailUnregistered) {
