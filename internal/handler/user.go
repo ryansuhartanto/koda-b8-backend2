@@ -17,7 +17,11 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) HandleList(ctx *gin.Context) {
-	users := h.service.List()
+	users, err := h.service.List()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	ctx.JSON(http.StatusOK, users)
 }

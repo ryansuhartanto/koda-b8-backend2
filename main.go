@@ -40,7 +40,7 @@ func init() {
 
 func main() {
 	r := gin.Default()
-	container := di.NewContainer()
+	container := di.NewContainer(pool, ctx)
 
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(200, struct {
