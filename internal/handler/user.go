@@ -29,7 +29,7 @@ func (h *UserHandler) HandleList(ctx *gin.Context) {
 
 func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 	var new model.User
-	if err := ctx.ShouldBindJSON(&new); err != nil {
+	if err := ctx.ShouldBind(&new); err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -50,11 +50,8 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 }
 
 func (h *UserHandler) HandleLogin(ctx *gin.Context) {
-	var auth struct {
-		Email    string         `json:"email" binding:"required"`
-		Password model.Password `json:"password" binding:"required"`
-	}
-	if err := ctx.ShouldBindJSON(&auth); err != nil {
+	var auth model.Auth
+	if err := ctx.ShouldBind(&auth); err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
