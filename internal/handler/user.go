@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,8 +34,15 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.service.Register(new); err != nil {
-		ctx.JSON(http.StatusConflict, err.Error())
+	err := h.service.Register(new)
+	if err != nil {
+		var status int
+		if errors.Is(err, service.ErrEmailConflict) {
+			status = http.StatusConflict
+		} else {
+			status = http.StatusInternalServerError
+		}
+		ctx.JSON(status, err.Error())
 		return
 	}
 
@@ -53,7 +61,15 @@ func (h *UserHandler) HandleAuth(ctx *gin.Context) {
 
 	user, err := h.service.Auth(auth.Email, auth.Password)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, err.Error())
+		var status int
+		if errors.Is(err, service.ErrEmailUnregistered) {
+			status = http.StatusUnauthorized
+		} else if errors.Is(err, service.ErrPasswordIncorrect) {
+			status = http.StatusUnprocessableEntity
+		} else {
+			status = http.StatusInternalServerError
+		}
+		ctx.JSON(status, err.Error())
 		return
 	}
 

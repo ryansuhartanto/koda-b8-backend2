@@ -28,6 +28,8 @@ func (s *UserService) List() ([]model.User, error) {
 	return s.repository.FindAll(s.ctx)
 }
 
+var ErrEmailConflict = errors.New("service: email already exists")
+
 func (s *UserService) Register(new model.User) error {
 	user, err := s.repository.Find(s.ctx, new.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
@@ -35,7 +37,7 @@ func (s *UserService) Register(new model.User) error {
 	}
 
 	if user != nil {
-		return errors.New("Email already exists")
+		return ErrEmailConflict
 	}
 
 	err = s.repository.Add(s.ctx, new)
@@ -46,6 +48,9 @@ func (s *UserService) Register(new model.User) error {
 	return nil
 }
 
+var ErrEmailUnregistered = errors.New("service: email is not registered")
+var ErrPasswordIncorrect = errors.New("service: password is incorrect")
+
 func (r *UserService) Auth(email string, password model.Password) (*model.User, error) {
 	user, err := r.repository.Find(r.ctx, email)
 	if err != nil {
@@ -53,11 +58,11 @@ func (r *UserService) Auth(email string, password model.Password) (*model.User, 
 	}
 
 	if user == nil {
-		return nil, errors.New("Email is not registered")
+		return nil, ErrEmailUnregistered
 	}
 
 	if user.Password != password {
-		return nil, errors.New("Wrong password")
+		return nil, ErrPasswordIncorrect
 	}
 
 	return user, nil
