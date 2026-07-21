@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@theme {
+	--color-accent: #6750a4;
+	--color-accent-foreground: #ffffff;
+}
+
+body {
+	min-height: 100vh;
+	padding: 1.5rem;
+	background-color: #fafafa;
+}
