@@ -2,6 +2,7 @@ import type { JSX } from "react";
 import { useState } from "react";
 
 import { AuthForm } from "#/components/AuthForm";
+import { EditUserForm } from "#/components/EditUserForm";
 import { Button } from "#/components/ui/button";
 import { UserList } from "#/components/UserList";
 import type { User } from "#/lib/api";
@@ -18,6 +19,7 @@ function readStoredUser(): User | undefined {
 
 export function App(): JSX.Element {
 	const [user, setUser] = useState<User | undefined>(readStoredUser);
+	const [editing, setEditing] = useState(false);
 
 	function handleAuth(nextUser: User) {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
@@ -27,6 +29,12 @@ export function App(): JSX.Element {
 	function handleLogout() {
 		localStorage.removeItem(STORAGE_KEY);
 		setUser(undefined);
+	}
+
+	function handleSave(nextUser: User) {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
+		setUser(nextUser);
+		setEditing(false);
 	}
 
 	if (!user) {
@@ -40,13 +48,33 @@ export function App(): JSX.Element {
 					<p className="text-sm font-medium text-zinc-900">{user.name}</p>
 					<p className="text-xs text-zinc-500">{user.email}</p>
 				</div>
-				<Button
-					variant="ghost"
-					onClick={handleLogout}
-				>
-					Log out
-				</Button>
+				<div className="flex gap-2">
+					{!editing && (
+						<Button
+							variant="ghost"
+							onClick={() => setEditing(true)}
+						>
+							Edit
+						</Button>
+					)}
+					<Button
+						variant="ghost"
+						onClick={handleLogout}
+					>
+						Log out
+					</Button>
+				</div>
 			</div>
+
+			{editing && (
+				<EditUserForm
+					user={user}
+					onSave={handleSave}
+					onDelete={handleLogout}
+					onCancel={() => setEditing(false)}
+				/>
+			)}
+
 			<UserList />
 		</div>
 	);

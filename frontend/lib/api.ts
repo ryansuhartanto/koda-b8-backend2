@@ -18,8 +18,11 @@ const TOKEN = "hello";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
 	const res = await fetch(`${URL}users${path}`, {
-		headers: { "Content-Type": "application/json" },
 		...init,
+		headers: {
+			"Content-Type": "application/json",
+			...(init?.headers as Record<string, string>),
+		},
 	});
 
 	if (!res.ok) {
@@ -47,6 +50,24 @@ export async function login(data: Credentials): Promise<User> {
 export async function listUsers(): Promise<User[]> {
 	return request("/", {
 		method: "GET",
+		headers: { Authorization: TOKEN },
+	});
+}
+
+export async function updateUser(
+	id: number,
+	data: Registration,
+): Promise<User> {
+	return request(`/${id}`, {
+		method: "PATCH",
+		headers: { Authorization: TOKEN },
+		body: JSON.stringify(data),
+	});
+}
+
+export async function deleteUser(id: number): Promise<void> {
+	await fetch(`users/${id}`, {
+		method: "DELETE",
 		headers: { Authorization: TOKEN },
 	});
 }
