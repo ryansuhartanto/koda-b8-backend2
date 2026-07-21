@@ -44,7 +44,7 @@ func (r *UserRepository) FindAll(ctx context.Context) ([]model.User, error) {
 	return users, nil
 }
 
-func (r *UserRepository) Find(ctx context.Context, email string) (*model.User, error) {
+func (r *UserRepository) Find(ctx context.Context, email model.Email) (*model.User, error) {
 	sql := "SELECT * FROM users WHERE email = @email"
 	args := pgx.NamedArgs{
 		"email": email,
