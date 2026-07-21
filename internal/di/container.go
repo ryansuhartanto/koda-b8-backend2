@@ -30,6 +30,8 @@ func NewContainer(querier db.Querier, ctx context.Context) *Container {
 }
 
 func (c *Container) Handle(r *gin.Engine) {
+	r.Use(middleware.CorsMiddleware())
+
 	{
 		users := r.Group("/users")
 

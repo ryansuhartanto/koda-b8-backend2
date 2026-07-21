@@ -13,11 +13,11 @@ type Registration = {
 	name: string;
 } & Credentials;
 
-const URL = "";
+const URL = "http://localhost:8080/";
 const TOKEN = "hello";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-	const res = await fetch(`/users${path}`, {
+	const res = await fetch(`${URL}users${path}`, {
 		headers: { "Content-Type": "application/json" },
 		...init,
 	});
@@ -31,21 +31,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function register(data: Registration): Promise<User> {
-	return request(`${URL}/register`, {
+	return request("/register", {
 		method: "POST",
 		body: JSON.stringify(data),
 	});
 }
 
 export async function login(data: Credentials): Promise<User> {
-	return request(`${URL}/login`, {
+	return request("/login", {
 		method: "POST",
 		body: JSON.stringify(data),
 	});
 }
 
 export async function listUsers(): Promise<User[]> {
-	return request(`${URL}/`, {
+	return request("/", {
 		method: "GET",
 		headers: { Authorization: TOKEN },
 	});

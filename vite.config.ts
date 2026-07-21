@@ -6,11 +6,6 @@ import { defineConfig } from "vite-plus";
 
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
-	server: {
-		proxy: {
-			"/users": "http://localhost:8080",
-		},
-	},
 	staged: {
 		"*": "vp check --fix --no-error-on-unmatched-pattern",
 		"go.mod,go.sum,*.go": "go vet -fix",
