@@ -34,7 +34,7 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 		return
 	}
 
-	err := h.service.Register(new)
+	user, err := h.service.Register(new)
 	if err != nil {
 		var status int
 		if errors.Is(err, service.ErrEmailConflict) {
@@ -46,7 +46,7 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, new)
+	ctx.JSON(http.StatusCreated, user)
 }
 
 func (h *UserHandler) HandleLogin(ctx *gin.Context) {
@@ -56,7 +56,7 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Login(auth.Email, auth.Password)
+	user, err := h.service.Login(auth)
 	if err != nil {
 		var status int
 		if errors.Is(err, service.ErrEmailUnregistered) {
