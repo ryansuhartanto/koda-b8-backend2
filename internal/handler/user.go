@@ -70,5 +70,27 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, *user)
+	ctx.JSON(http.StatusOK, user)
+}
+
+func (h *UserHandler) HandlePatch(ctx *gin.Context) {
+	var id model.Id
+	if err := ctx.ShouldBindUri(&id); err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var new model.User
+	if err := ctx.ShouldBind(&new); err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	user, err := h.service.Edit(id, new)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
 }

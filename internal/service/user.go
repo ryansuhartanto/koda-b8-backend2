@@ -69,16 +69,7 @@ func (s *UserService) Login(auth model.Auth) (*model.UserIdentified, error) {
 }
 
 func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, error) {
-	user, err := s.repository.Find(s.ctx, new.Auth.Email)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		return nil, err
-	}
-
-	if user != nil {
-		return nil, ErrEmailConflict
-	}
-
-	user, err = s.repository.Add(s.ctx, new)
+	user, err := s.repository.Update(s.ctx, id, new)
 	if err != nil {
 		return nil, err
 	}

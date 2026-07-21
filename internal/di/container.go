@@ -32,4 +32,6 @@ func (c *Container) Handle(r *gin.Engine) {
 	r.POST("/users/register", c.UserHandler.HandleRegister)
 	r.POST("/users/login", c.UserHandler.HandleLogin)
 	r.GET("/users", c.UserHandler.HandleList)
+
+	r.PATCH("/users/:id", c.UserHandler.HandlePatch)
 }
