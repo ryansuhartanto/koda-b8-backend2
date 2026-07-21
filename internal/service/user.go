@@ -51,8 +51,8 @@ func (s *UserService) Register(new model.User) (*model.UserIdentified, error) {
 var ErrEmailUnregistered = errors.New("service: email is not registered")
 var ErrPasswordIncorrect = errors.New("service: password is incorrect")
 
-func (r *UserService) Login(auth model.Auth) (*model.UserIdentified, error) {
-	user, err := r.repository.FindEmail(r.ctx, auth.Email)
+func (s *UserService) Login(auth model.Auth) (*model.UserIdentified, error) {
+	user, err := s.repository.FindEmail(s.ctx, auth.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +63,24 @@ func (r *UserService) Login(auth model.Auth) (*model.UserIdentified, error) {
 
 	if user.User.Password != auth.Password {
 		return nil, ErrPasswordIncorrect
+	}
+
+	return user, nil
+}
+
+func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, error) {
+	user, err := s.repository.Find(s.ctx, new.Auth.Email)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+
+	if user != nil {
+		return nil, ErrEmailConflict
+	}
+
+	user, err = s.repository.Add(s.ctx, new)
+	if err != nil {
+		return nil, err
 	}
 
 	return user, nil
