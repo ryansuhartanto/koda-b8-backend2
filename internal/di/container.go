@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/db"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/handler"
+	"github.com/ryansuhartanto/koda-b8-backend1/internal/middleware"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/repository"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/service"
 )
@@ -29,10 +30,18 @@ func NewContainer(querier db.Querier, ctx context.Context) *Container {
 }
 
 func (c *Container) Handle(r *gin.Engine) {
-	r.POST("/users/register", c.UserHandler.HandleRegister)
-	r.POST("/users/login", c.UserHandler.HandleLogin)
-	r.GET("/users", c.UserHandler.HandleList)
+	{
+		users := r.Group("/users")
 
-	r.PATCH("/users/:id", c.UserHandler.HandlePatch)
-	r.DELETE("/users/:id", c.UserHandler.HandleDelete)
+		users.POST("/register", c.UserHandler.HandleRegister)
+		users.POST("/login", c.UserHandler.HandleLogin)
+
+		{
+			users = users.Group("/", middleware.AuthMiddleware())
+
+			users.GET("/", c.UserHandler.HandleList)
+			users.PATCH("/:id", c.UserHandler.HandlePatch)
+			users.DELETE("/:id", c.UserHandler.HandleDelete)
+		}
+	}
 }
