@@ -109,3 +109,14 @@ func (r *UserRepository) Update(ctx context.Context, id model.Id, new model.User
 
 	return user, nil
 }
+
+func (r *UserRepository) Delete(ctx context.Context, id model.Id) error {
+	sql := "DELETE FROM users WHERE id = @id"
+	args := StrictFlattenArgs(id)
+	_, err := r.querier.Exec(ctx, sql, args)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

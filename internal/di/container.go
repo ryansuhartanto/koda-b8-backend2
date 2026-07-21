@@ -34,4 +34,5 @@ func (c *Container) Handle(r *gin.Engine) {
 	r.GET("/users", c.UserHandler.HandleList)
 
 	r.PATCH("/users/:id", c.UserHandler.HandlePatch)
+	r.DELETE("/users/:id", c.UserHandler.HandleDelete)
 }

@@ -76,3 +76,12 @@ func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, 
 
 	return user, nil
 }
+
+func (s *UserService) Delete(id model.Id) error {
+	err := s.repository.Delete(s.ctx, id)
+	if err != nil {
+		return nil
+	}
+
+	return nil
+}

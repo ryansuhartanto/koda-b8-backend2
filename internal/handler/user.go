@@ -94,3 +94,19 @@ func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, user)
 }
+
+func (h *UserHandler) HandleDelete(ctx *gin.Context) {
+	var id model.Id
+	if err := ctx.ShouldBindUri(&id); err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err := h.service.Delete(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
