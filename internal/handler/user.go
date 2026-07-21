@@ -20,7 +20,7 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 func (h *UserHandler) HandleList(ctx *gin.Context) {
 	users, err := h.service.List()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -30,7 +30,7 @@ func (h *UserHandler) HandleList(ctx *gin.Context) {
 func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 	var new model.User
 	if err := ctx.ShouldBind(&new); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 		} else {
 			status = http.StatusInternalServerError
 		}
-		ctx.JSON(status, err.Error())
+		ctx.AbortWithStatusJSON(status, err.Error())
 		return
 	}
 
@@ -52,7 +52,7 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 	var auth model.Auth
 	if err := ctx.ShouldBind(&auth); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -66,7 +66,7 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 		} else {
 			status = http.StatusInternalServerError
 		}
-		ctx.JSON(status, err.Error())
+		ctx.AbortWithStatusJSON(status, err.Error())
 		return
 	}
 
@@ -76,19 +76,19 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var new model.User
 	if err := ctx.ShouldBind(&new); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := h.service.Edit(id, new)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -98,13 +98,13 @@ func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 func (h *UserHandler) HandleDelete(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err := h.service.Delete(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
