@@ -7,10 +7,19 @@
 		"lint": "vp lint",
 		"dev": "vp dev"
 	},
+	"dependencies": {
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7"
+	},
 	"devDependencies": {
 		"@commitlint/cli": "^21.2.1",
 		"@kekkon-nexus/config": "2.260712.0",
+		"@tailwindcss/vite": "^4.3.3",
 		"@types/bun": "latest",
+		"@types/react": "^19.2.17",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^6.0.3",
+		"tailwindcss": "^4.3.3",
 		"typescript": "^7.0.2",
 		"vite-plus": "0.2.5"
 	},
