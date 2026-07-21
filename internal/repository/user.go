@@ -19,7 +19,7 @@ func NewUserRepository(querier db.Querier) *UserRepository {
 
 func (r *UserRepository) Add(ctx context.Context, new model.User) (*model.UserIdentified, error) {
 	sql := "INSERT INTO users (name, email, password) VALUES (@name, @email, @password) RETURNING *"
-	args := pgx.StructArgs(new)
+	args := StrictFlattenArgs(new)
 	rows, err := r.querier.Query(ctx, sql, args)
 	if err != nil {
 		return nil, err
