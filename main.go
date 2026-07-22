@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/PeterTakahashi/gin-openapi/openapiui"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-migrate/migrate/v4"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/db"
@@ -54,7 +56,9 @@ func init() {
 	}
 	defer m.Close()
 
-	m.Up()
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		panic(err)
+	}
 }
 
 func main() {
