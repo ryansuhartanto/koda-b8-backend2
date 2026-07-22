@@ -12,8 +12,13 @@ type UserIdentified struct {
 }
 
 type User struct {
-	Name string `db:"name" form:"name" json:"name" binding:"required"`
+	Profile
 	Credentials
+}
+
+type Profile struct {
+	Name       string  `db:"name" form:"name" json:"name" binding:"required"`
+	PictureUrl *string `db:"picture_url" form:"picture_url" json:"picture_url,omitzero"`
 }
 
 type Credentials struct {
