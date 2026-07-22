@@ -20,6 +20,17 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 	return &UserHandler{service}
 }
 
+// HandleRegister godoc
+// @Summary      Register a new user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      model.User  true  "New user"
+// @Success      201   {object}  model.UserIdentified
+// @Failure      400   {string}  string  "invalid request body"
+// @Failure      409   {string}  string  "email already exists"
+// @Failure      500   {string}  string  "internal error"
+// @Router       /auth/register [post]
 func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 	var new model.User
 	if err := ctx.ShouldBind(&new); err != nil {
@@ -40,6 +51,18 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, user)
 }
 
+// HandleLogin godoc
+// @Summary      Log in
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      model.Credentials  true  "Credentials"
+// @Success      200   {object}  model.UserIdentified
+// @Failure      400   {string}  string  "invalid request body"
+// @Failure      401   {string}  string  "email not registered"
+// @Failure      422   {string}  string  "incorrect password"
+// @Failure      500   {string}  string  "internal error"
+// @Router       /auth/login [post]
 func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 	var cre model.Credentials
 	if err := ctx.ShouldBind(&cre); err != nil {
@@ -63,6 +86,14 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+// HandleList godoc
+// @Summary      List users
+// @Tags         users
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Success      200  {array}   model.UserIdentified
+// @Failure      500  {string}  string  "internal error"
+// @Router       /users/ [get]
 func (h *UserHandler) HandleList(ctx *gin.Context) {
 	users, err := h.service.List()
 	if err != nil {
@@ -73,6 +104,18 @@ func (h *UserHandler) HandleList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
+// HandlePatch godoc
+// @Summary      Update a user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id    path      int         true  "User ID"
+// @Param        body  body      model.User  true  "User fields"
+// @Success      200   {object}  model.UserIdentified
+// @Failure      400   {string}  string  "invalid request"
+// @Failure      500   {string}  string  "internal error"
+// @Router       /users/{id} [patch]
 func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
@@ -95,6 +138,20 @@ func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+// HandlePutPicture godoc
+// @Summary      Upload or clear a user's profile picture
+// @Tags         users
+// @Accept       multipart/form-data
+// @Accept       octet-stream
+// @Security     ApiKeyAuth
+// @Param        id       path  int   true  "User ID"
+// @Param        picture  formData  file  false  "Picture file (omit or send empty body to clear)"
+// @Success      200  "OK"
+// @Failure      400  {string}  string  "invalid request"
+// @Failure      413  {string}  string  "file too large"
+// @Failure      422  {string}  string  "unsupported image format"
+// @Failure      500  {string}  string  "internal error"
+// @Router       /users/{id}/picture [put]
 func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
@@ -146,6 +203,15 @@ func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
+// HandleDelete godoc
+// @Summary      Delete a user
+// @Tags         users
+// @Security     ApiKeyAuth
+// @Param        id  path  int  true  "User ID"
+// @Success      200  "OK"
+// @Failure      400  {string}  string  "invalid request"
+// @Failure      500  {string}  string  "internal error"
+// @Router       /users/{id} [delete]
 func (h *UserHandler) HandleDelete(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
