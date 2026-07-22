@@ -56,7 +56,8 @@ export async function listUsers(): Promise<Array<User & Identified>> {
 	});
 }
 
-export async function updateUser(id: number, data: User): Promise<User> {
+export async function editUser(id: number, data: User): Promise<User> {
+	data.password = encoder.encode(data.password).toBase64();
 	return request(`/users/${id}`, {
 		method: "PATCH",
 		headers: { Authorization: TOKEN },

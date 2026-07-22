@@ -3,7 +3,7 @@ import type { SubmitEvent, JSX } from "react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
-import { deleteUser, updateUser } from "#/lib/api";
+import { deleteUser, editUser } from "#/lib/api";
 import type { Identified, User } from "#/lib/api";
 
 const cls = {
@@ -43,7 +43,7 @@ export function EditUserForm({
 		const data = new FormData(event.currentTarget);
 
 		try {
-			const updated = await updateUser(user.id, {
+			const updated = await editUser(user.id, {
 				name: fieldValue(data, "name"),
 				email: fieldValue(data, "email"),
 				password: fieldValue(data, "password"),
