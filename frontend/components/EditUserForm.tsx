@@ -60,15 +60,15 @@ export function EditUserForm({
 		const picture = data.get("picture");
 
 		try {
+			if (picture instanceof File && picture.size > 0) {
+				await updateUserPicture(user.id, picture);
+			}
+
 			const updated = await editUser(user.id, {
 				name: fieldValue(data, "name"),
 				email: fieldValue(data, "email"),
 				password: fieldValue(data, "password"),
 			});
-
-			if (picture instanceof File && picture.size > 0) {
-				await updateUserPicture(user.id, picture);
-			}
 
 			onSave(updated);
 		} catch (error) {
