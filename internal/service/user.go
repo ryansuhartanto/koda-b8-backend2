@@ -40,7 +40,7 @@ func NewUserService(
 
 type AuthResult struct {
 	*model.UserIdentified
-	Token string `json:"jwt"`
+	Token string `json:"jwt" format:"jwt"`
 }
 
 func NewAuthResult(

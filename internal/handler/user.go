@@ -23,10 +23,10 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 // HandleRegister godoc
 // @Summary      Register a new user
 // @Tags         auth
-// @Accept       json
+// @Accept       x-www-form-urlencoded,json,mpfd
 // @Produce      json
 // @Param        body  body      model.User  true  "New user"
-// @Success      201   {object}  model.UserIdentified
+// @Success      201   {object}  service.AuthResult
 // @Failure      400   {string}  string  "invalid request body"
 // @Failure      409   {string}  string  "email already exists"
 // @Failure      500   {string}  string  "internal error"
@@ -54,10 +54,10 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 // HandleLogin godoc
 // @Summary      Log in
 // @Tags         auth
-// @Accept       json
+// @Accept       x-www-form-urlencoded,json,mpfd
 // @Produce      json
 // @Param        body  body      model.Credentials  true  "Credentials"
-// @Success      200   {object}  model.UserIdentified
+// @Success      200   {object}  service.AuthResult
 // @Failure      400   {string}  string  "invalid request body"
 // @Failure      401   {string}  string  "email not registered"
 // @Failure      422   {string}  string  "incorrect password"
@@ -90,7 +90,7 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 // @Summary      List users
 // @Tags         users
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security     BearerAuth
 // @Success      200  {array}   model.UserIdentified
 // @Failure      500  {string}  string  "internal error"
 // @Router       /users/ [get]
@@ -113,9 +113,9 @@ func (h *UserHandler) HandleList(ctx *gin.Context) {
 // HandlePatch godoc
 // @Summary      Update a user
 // @Tags         users
-// @Accept       json
+// @Accept       x-www-form-urlencoded,json,mpfd
 // @Produce      json
-// @Security     ApiKeyAuth
+// @Security     BearerAuth
 // @Param        id    path      int         true  "User ID"
 // @Param        body  body      model.User  true  "User fields"
 // @Success      200   {object}  model.UserIdentified
@@ -152,9 +152,9 @@ func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 // HandlePutPicture godoc
 // @Summary      Upload or clear a user's profile picture
 // @Tags         users
-// @Accept       multipart/form-data
+// @Accept       image/*,mpfd
 // @Accept       octet-stream
-// @Security     ApiKeyAuth
+// @Security     BearerAuth
 // @Param        id       path  int   true  "User ID"
 // @Param        picture  formData  file  false  "Picture file (omit or send empty body to clear)"
 // @Success      200  "OK"
@@ -222,7 +222,7 @@ func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 // HandleDelete godoc
 // @Summary      Delete a user
 // @Tags         users
-// @Security     ApiKeyAuth
+// @Security     BearerAuth
 // @Param        id  path  int  true  "User ID"
 // @Success      200  "OK"
 // @Failure      400  {string}  string  "invalid request"

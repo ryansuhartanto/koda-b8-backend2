@@ -80,13 +80,46 @@ const docTemplate = `{
                     "password"
                 ],
                 "type": "object"
+            },
+            "service.AuthResult": {
+                "properties": {
+                    "email": {
+                        "form": "email",
+                        "type": "string"
+                    },
+                    "id": {
+                        "form": "id",
+                        "type": "integer"
+                    },
+                    "jwt": {
+                        "format": "jwt",
+                        "type": "string"
+                    },
+                    "name": {
+                        "form": "name",
+                        "type": "string"
+                    },
+                    "password": {
+                        "form": "password",
+                        "type": "string"
+                    },
+                    "picture_url": {
+                        "form": "picture_url",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "name",
+                    "password"
+                ],
+                "type": "object"
             }
         },
         "securitySchemes": {
-            "ApiKeyAuth": {
-                "in": "header",
-                "name": "Authorization",
-                "type": "apiKey"
+            "BearerAuth": {
+                "scheme": "bearer",
+                "type": "http"
             }
         }
     },
@@ -125,6 +158,16 @@ const docTemplate = `{
                                     }
                                 ]
                             }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object"
+                            }
                         }
                     },
                     "description": "Credentials",
@@ -135,7 +178,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/model.UserIdentified"
+                                    "$ref": "#/components/schemas/service.AuthResult"
                                 }
                             }
                         },
@@ -205,6 +248,16 @@ const docTemplate = `{
                                     }
                                 ]
                             }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object"
+                            }
                         }
                     },
                     "description": "New user",
@@ -215,7 +268,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/model.UserIdentified"
+                                    "$ref": "#/components/schemas/service.AuthResult"
                                 }
                             }
                         },
@@ -287,7 +340,7 @@ const docTemplate = `{
                 },
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "summary": "List users",
@@ -336,7 +389,7 @@ const docTemplate = `{
                 },
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "summary": "Delete a user",
@@ -370,6 +423,16 @@ const docTemplate = `{
                                         "description": "User fields"
                                     }
                                 ]
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object"
                             }
                         }
                     },
@@ -410,7 +473,7 @@ const docTemplate = `{
                 },
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "summary": "Update a user",
@@ -444,6 +507,11 @@ const docTemplate = `{
                             "schema": {
                                 "title": "picture",
                                 "type": "file"
+                            }
+                        },
+                        "image/*": {
+                            "schema": {
+                                "type": "string"
                             }
                         },
                         "multipart/form-data": {
@@ -501,7 +569,7 @@ const docTemplate = `{
                 },
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "summary": "Upload or clear a user's profile picture",

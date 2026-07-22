@@ -26,9 +26,7 @@ import (
 
 // @servers.url  http://localhost:8080
 
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
+// @securitydefinitions.bearerauth BearerAuth
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/

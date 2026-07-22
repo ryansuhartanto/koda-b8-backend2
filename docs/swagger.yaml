@@ -53,11 +53,35 @@ components:
         - name
         - password
       type: object
+    service.AuthResult:
+      properties:
+        email:
+          form: email
+          type: string
+        id:
+          form: id
+          type: integer
+        jwt:
+          format: jwt
+          type: string
+        name:
+          form: name
+          type: string
+        password:
+          form: password
+          type: string
+        picture_url:
+          form: picture_url
+          type: string
+      required:
+        - email
+        - name
+        - password
+      type: object
   securitySchemes:
-    ApiKeyAuth:
-      in: header
-      name: Authorization
-      type: apiKey
+    BearerAuth:
+      scheme: bearer
+      type: http
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -84,6 +108,12 @@ paths:
                 - $ref: "#/components/schemas/model.Credentials"
                   description: Credentials
                   summary: body
+          application/x-www-form-urlencoded:
+            schema:
+              type: string
+          multipart/form-data:
+            schema:
+              type: object
         description: Credentials
         required: true
       responses:
@@ -91,7 +121,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/model.UserIdentified"
+                $ref: "#/components/schemas/service.AuthResult"
           description: OK
         "400":
           content:
@@ -131,6 +161,12 @@ paths:
                 - $ref: "#/components/schemas/model.User"
                   description: New user
                   summary: body
+          application/x-www-form-urlencoded:
+            schema:
+              type: string
+          multipart/form-data:
+            schema:
+              type: object
         description: New user
         required: true
       responses:
@@ -138,7 +174,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/model.UserIdentified"
+                $ref: "#/components/schemas/service.AuthResult"
           description: Created
         "400":
           content:
@@ -179,7 +215,7 @@ paths:
                 type: string
           description: internal error
       security:
-        - ApiKeyAuth: []
+        - BearerAuth: []
       summary: List users
       tags:
         - users
@@ -208,7 +244,7 @@ paths:
                 type: string
           description: internal error
       security:
-        - ApiKeyAuth: []
+        - BearerAuth: []
       summary: Delete a user
       tags:
         - users
@@ -229,6 +265,12 @@ paths:
                 - $ref: "#/components/schemas/model.User"
                   description: User fields
                   summary: body
+          application/x-www-form-urlencoded:
+            schema:
+              type: string
+          multipart/form-data:
+            schema:
+              type: object
         description: User fields
         required: true
       responses:
@@ -251,7 +293,7 @@ paths:
                 type: string
           description: internal error
       security:
-        - ApiKeyAuth: []
+        - BearerAuth: []
       summary: Update a user
       tags:
         - users
@@ -274,6 +316,9 @@ paths:
             schema:
               title: picture
               type: file
+          image/*:
+            schema:
+              type: string
           multipart/form-data:
             schema:
               type: object
@@ -306,7 +351,7 @@ paths:
                 type: string
           description: internal error
       security:
-        - ApiKeyAuth: []
+        - BearerAuth: []
       summary: Upload or clear a user's profile picture
       tags:
         - users
