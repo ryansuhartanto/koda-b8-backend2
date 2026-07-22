@@ -17,16 +17,6 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 	return &UserHandler{service}
 }
 
-func (h *UserHandler) HandleList(ctx *gin.Context) {
-	users, err := h.service.List()
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	ctx.JSON(http.StatusOK, users)
-}
-
 func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 	var new model.User
 	if err := ctx.ShouldBind(&new); err != nil {
@@ -71,6 +61,16 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, user)
+}
+
+func (h *UserHandler) HandleList(ctx *gin.Context) {
+	users, err := h.service.List()
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, users)
 }
 
 func (h *UserHandler) HandlePatch(ctx *gin.Context) {

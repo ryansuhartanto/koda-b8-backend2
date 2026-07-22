@@ -15,7 +15,7 @@ const URL = "http://localhost:8080/";
 const TOKEN = "hello";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-	const res = await fetch(`${URL}users${path}`, {
+	const res = await fetch(`${URL}${path}`, {
 		...init,
 		headers: {
 			"Content-Type": "application/json",
@@ -35,7 +35,7 @@ const encoder = new TextEncoder();
 
 export async function register(data: User): Promise<User> {
 	data.password = encoder.encode(data.password).toBase64();
-	return request("/register", {
+	return request("/auth/register", {
 		method: "POST",
 		body: JSON.stringify(data),
 	});
@@ -43,21 +43,21 @@ export async function register(data: User): Promise<User> {
 
 export async function login(data: Credentials): Promise<User> {
 	data.password = encoder.encode(data.password).toBase64();
-	return request("/login", {
+	return request("/auth/login", {
 		method: "POST",
 		body: JSON.stringify(data),
 	});
 }
 
 export async function listUsers(): Promise<Array<User & Identified>> {
-	return request("/", {
+	return request("/users/", {
 		method: "GET",
 		headers: { Authorization: TOKEN },
 	});
 }
 
 export async function updateUser(id: number, data: User): Promise<User> {
-	return request(`/${id}`, {
+	return request(`/users/${id}`, {
 		method: "PATCH",
 		headers: { Authorization: TOKEN },
 		body: JSON.stringify(data),
@@ -65,7 +65,7 @@ export async function updateUser(id: number, data: User): Promise<User> {
 }
 
 export async function deleteUser(id: number): Promise<void> {
-	await fetch(`users/${id}`, {
+	await request(`/users/${id}`, {
 		method: "DELETE",
 		headers: { Authorization: TOKEN },
 	});

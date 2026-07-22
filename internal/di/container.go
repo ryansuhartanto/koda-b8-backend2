@@ -33,17 +33,17 @@ func (c *Container) Handle(r *gin.Engine) {
 	r.Use(middleware.CorsMiddleware())
 
 	{
-		users := r.Group("/users")
+		auth := r.Group("/auth")
 
-		users.POST("/register", c.UserHandler.HandleRegister)
-		users.POST("/login", c.UserHandler.HandleLogin)
+		auth.POST("/register", c.UserHandler.HandleRegister)
+		auth.POST("/login", c.UserHandler.HandleLogin)
+	}
 
-		{
-			users = users.Group("/", middleware.AuthMiddleware())
+	{
+		users := r.Group("/users", middleware.AuthMiddleware())
 
-			users.GET("/", c.UserHandler.HandleList)
-			users.PATCH("/:id", c.UserHandler.HandlePatch)
-			users.DELETE("/:id", c.UserHandler.HandleDelete)
-		}
+		users.GET("/", c.UserHandler.HandleList)
+		users.PATCH("/:id", c.UserHandler.HandlePatch)
+		users.DELETE("/:id", c.UserHandler.HandleDelete)
 	}
 }
