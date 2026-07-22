@@ -15,6 +15,9 @@ run = "go tool air"
 [tasks."dev:fe"]
 run = "bun run dev"
 
+[tasks."docs"]
+run = "go tool swag init --v3.1"
+
 [tasks."db:create"]
 usage = 'arg "[name]"'
 run = "migrate create -ext sql -dir internal/db/migrations -seq ${usage_name}"

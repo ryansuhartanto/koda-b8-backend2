@@ -1,0 +1,23 @@
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: Authorization
+      type: apiKey
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+info:
+  contact:
+    email: suhartanto@kekkon.nexus
+    name: Ryan Suhartanto
+    url: https://github.com/ryansuhartanto/koda-b8-backend2
+  description: Go exercise implementing a simple REST server.
+  license:
+    name: MIT
+  title: GoREST
+  version: "1.0"
+openapi: 3.1.0
+paths: {}
+servers:
+  - url: localhost:8080/
