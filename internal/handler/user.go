@@ -77,7 +77,7 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 			status = http.StatusUnauthorized
 		}
 		if errors.Is(err, service.ErrPasswordIncorrect) {
-			status = http.StatusUnprocessableEntity
+			status = http.StatusUnauthorized
 		}
 		ctx.AbortWithStatusJSON(status, err.Error())
 		return
