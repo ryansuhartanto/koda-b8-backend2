@@ -2,10 +2,12 @@ import type { JSX } from "react";
 import { useEffect, useState } from "react";
 
 import { listUsers } from "#/lib/api";
-import type { User } from "#/lib/api";
+import type { Identified, User } from "#/lib/api";
 
 export function UserList(): JSX.Element {
-	const [users, setUsers] = useState<User[] | undefined>(undefined);
+	const [users, setUsers] = useState<Array<User & Identified> | undefined>(
+		undefined,
+	);
 	const [error, setError] = useState<string | undefined>(undefined);
 
 	useEffect(() => {

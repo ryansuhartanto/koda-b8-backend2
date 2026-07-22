@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { deleteUser, updateUser } from "#/lib/api";
-import type { User } from "#/lib/api";
+import type { Identified, User } from "#/lib/api";
 
 const cls = {
 	field: "flex flex-col gap-1.5",
@@ -25,7 +25,7 @@ export function EditUserForm({
 	onDelete,
 	onCancel,
 }: {
-	user: User;
+	user: User & Identified;
 	onSave: (user: User) => void;
 	onDelete: () => void;
 	onCancel: () => void;

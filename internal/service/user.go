@@ -2,7 +2,10 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
@@ -31,7 +34,7 @@ func (s *UserService) List() ([]model.UserIdentified, error) {
 var ErrEmailConflict = errors.New("service: email already exists")
 
 func (s *UserService) Register(new model.User) (*model.UserIdentified, error) {
-	user, err := s.repository.FindEmail(s.ctx, new.Auth.Email)
+	user, err := s.repository.FindEmail(s.ctx, new.Credentials.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
@@ -39,6 +42,18 @@ func (s *UserService) Register(new model.User) (*model.UserIdentified, error) {
 	if user != nil {
 		return nil, ErrEmailConflict
 	}
+
+	rawPassword, err := base64.StdEncoding.DecodeString(string(new.Password))
+	if err != nil {
+		return nil, err
+	}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword(rawPassword, bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	new.Password = model.Password(encryptedPassword)
 
 	user, err = s.repository.Add(s.ctx, new)
 	if err != nil {
@@ -51,8 +66,8 @@ func (s *UserService) Register(new model.User) (*model.UserIdentified, error) {
 var ErrEmailUnregistered = errors.New("service: email is not registered")
 var ErrPasswordIncorrect = errors.New("service: password is incorrect")
 
-func (s *UserService) Login(auth model.Auth) (*model.UserIdentified, error) {
-	user, err := s.repository.FindEmail(s.ctx, auth.Email)
+func (s *UserService) Login(cre model.Credentials) (*model.UserIdentified, error) {
+	user, err := s.repository.FindEmail(s.ctx, cre.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
@@ -61,8 +76,13 @@ func (s *UserService) Login(auth model.Auth) (*model.UserIdentified, error) {
 		return nil, ErrEmailUnregistered
 	}
 
-	if user.User.Password != auth.Password {
-		return nil, ErrPasswordIncorrect
+	rawPassword, err := base64.StdEncoding.DecodeString(string(cre.Password))
+	if err != nil {
+		return nil, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), rawPassword); err != nil {
+		return nil, errors.Join(ErrPasswordIncorrect, err)
 	}
 
 	return user, nil

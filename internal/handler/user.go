@@ -50,13 +50,13 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 }
 
 func (h *UserHandler) HandleLogin(ctx *gin.Context) {
-	var auth model.Auth
-	if err := ctx.ShouldBind(&auth); err != nil {
+	var cre model.Credentials
+	if err := ctx.ShouldBind(&cre); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	user, err := h.service.Login(auth)
+	user, err := h.service.Login(cre)
 	if err != nil {
 		var status int
 		if errors.Is(err, service.ErrEmailUnregistered) {

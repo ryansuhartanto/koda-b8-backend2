@@ -1,17 +1,15 @@
-export type User = {
+export type Identified = {
 	id: number;
-	name: string;
-	email: string;
 };
+
+export type User = {
+	name: string;
+} & Credentials;
 
 type Credentials = {
 	email: string;
 	password: string;
 };
-
-type Registration = {
-	name: string;
-} & Credentials;
 
 const URL = "http://localhost:8080/";
 const TOKEN = "hello";
@@ -33,7 +31,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 	return res.json() as Promise<T>;
 }
 
-export async function register(data: Registration): Promise<User> {
+const encoder = new TextEncoder();
+
+export async function register(data: User): Promise<User> {
+	data.password = encoder.encode(data.password).toBase64();
 	return request("/register", {
 		method: "POST",
 		body: JSON.stringify(data),
@@ -41,23 +42,21 @@ export async function register(data: Registration): Promise<User> {
 }
 
 export async function login(data: Credentials): Promise<User> {
+	data.password = encoder.encode(data.password).toBase64();
 	return request("/login", {
 		method: "POST",
 		body: JSON.stringify(data),
 	});
 }
 
-export async function listUsers(): Promise<User[]> {
+export async function listUsers(): Promise<Array<User & Identified>> {
 	return request("/", {
 		method: "GET",
 		headers: { Authorization: TOKEN },
 	});
 }
 
-export async function updateUser(
-	id: number,
-	data: Registration,
-): Promise<User> {
+export async function updateUser(id: number, data: User): Promise<User> {
 	return request(`/${id}`, {
 		method: "PATCH",
 		headers: { Authorization: TOKEN },

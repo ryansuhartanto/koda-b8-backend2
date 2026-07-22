@@ -13,10 +13,10 @@ type UserIdentified struct {
 
 type User struct {
 	Name string `db:"name" form:"name" json:"name" binding:"required"`
-	Auth
+	Credentials
 }
 
-type Auth struct {
+type Credentials struct {
 	Email    `db:"email" form:"email" json:"email" binding:"required,email"`
-	Password `db:"password" form:"password" json:"password,omitzero" binding:"required"`
+	Password `db:"password" form:"password" json:"password,omitzero" binding:"required,base64"`
 }
