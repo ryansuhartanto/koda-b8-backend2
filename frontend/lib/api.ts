@@ -12,11 +12,18 @@ type Credentials = {
 	password: string;
 };
 
+type Bearing = {
+	jwt: string;
+};
+
 const URL = "http://localhost:8080";
-const TOKEN = "hello";
 
 export function assetUrl(url?: string): string {
 	return `${URL}/${url}`;
+}
+
+function authHeader(): Record<string, string> {
+	return { Authorization: `Bearer ${sessionStorage.getItem("token")}` };
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -32,28 +39,34 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 const encoder = new TextEncoder();
 
-export async function register(data: User): Promise<User & Identified> {
+export async function register(
+	data: User,
+): Promise<User & Identified & Bearing> {
 	data.password = encoder.encode(data.password).toBase64();
-	return request("/auth/register", {
+	const result = await request<User & Identified & Bearing>("/auth/register", {
 		method: "POST",
 		body: new URLSearchParams(data),
 	});
+	sessionStorage.setItem("token", result.jwt);
+	return result;
 }
 
-export async function login(data: Credentials): Promise<User & Identified> {
+export async function login(
+	data: Credentials,
+): Promise<User & Identified & Bearing> {
 	data.password = encoder.encode(data.password).toBase64();
-	return request("/auth/login", {
+	const result = await request<User & Identified & Bearing>("/auth/login", {
 		method: "POST",
 		body: new URLSearchParams(data),
 	});
+	sessionStorage.setItem("token", result.jwt);
+	return result;
 }
 
 export async function listUsers(): Promise<Array<User & Identified>> {
 	return request("/users/", {
 		method: "GET",
-		headers: {
-			Authorization: TOKEN,
-		},
+		headers: authHeader(),
 	});
 }
 
@@ -64,9 +77,7 @@ export async function editUser(
 	data.password = encoder.encode(data.password).toBase64();
 	return request(`/users/${id}`, {
 		method: "PATCH",
-		headers: {
-			Authorization: TOKEN,
-		},
+		headers: authHeader(),
 		body: new URLSearchParams(data),
 	});
 }
@@ -78,7 +89,7 @@ export async function updateUserPicture(
 	const res = await fetch(`${URL}/users/${id}/picture`, {
 		method: "PUT",
 		headers: {
-			Authorization: TOKEN,
+			...authHeader(),
 			...(file && { "Content-Type": file.type }),
 		},
 		body: file,
@@ -91,8 +102,8 @@ export async function updateUserPicture(
 }
 
 export async function deleteUser(id: number): Promise<void> {
-	await fetch(`/users/${id}`, {
+	await fetch(`${URL}/users/${id}`, {
 		method: "DELETE",
-		headers: { Authorization: TOKEN },
+		headers: authHeader(),
 	});
 }
