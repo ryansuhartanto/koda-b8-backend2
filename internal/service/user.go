@@ -4,6 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"fmt"
+	"mime"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -95,6 +101,42 @@ func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, 
 	}
 
 	return user, nil
+}
+
+var ErrImageUnsupported = errors.New("service: unsupported image format")
+
+func (s *UserService) UpdatePicture(id model.Id, data []byte) error {
+	if data == nil {
+		if err := s.repository.UpdatePicture(s.ctx, id, nil); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	contentType := http.DetectContentType(data)
+	if !strings.HasPrefix(contentType, "image/") {
+		return ErrImageUnsupported
+	}
+
+	ext, err := mime.ExtensionsByType(contentType)
+	if err != nil {
+		return err
+	}
+	if len(ext) == 0 {
+		return ErrImageUnsupported
+	}
+
+	file := filepath.Join("uploads", fmt.Sprintf("user-picture-%v%v", id, ext[0]))
+	if err := os.WriteFile(file, data, 0644); err != nil {
+		return err
+	}
+
+	if err := s.repository.UpdatePicture(s.ctx, id, &file); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *UserService) Delete(id model.Id) error {

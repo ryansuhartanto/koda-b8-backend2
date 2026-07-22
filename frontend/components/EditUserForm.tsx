@@ -1,9 +1,10 @@
 import { Field } from "@base-ui/react/field";
-import type { SubmitEvent, JSX } from "react";
+import type { ChangeEvent, SubmitEvent, JSX } from "react";
 import { useState } from "react";
 
+import { Avatar } from "#/components/ui/avater";
 import { Button } from "#/components/ui/button";
-import { deleteUser, editUser } from "#/lib/api";
+import { deleteUser, editUser, updateUserPicture } from "#/lib/api";
 import type { Identified, User } from "#/lib/api";
 
 const cls = {
@@ -32,6 +33,21 @@ export function EditUserForm({
 }): JSX.Element {
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [pending, setPending] = useState(false);
+	const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
+
+	function handlePictureChange(event: ChangeEvent<HTMLInputElement>): void {
+		const file = event.currentTarget.files?.[0];
+		if (!file) {
+			return;
+		}
+
+		setPreviewUrl((prev) => {
+			if (prev) {
+				URL.revokeObjectURL(prev);
+			}
+			return URL.createObjectURL(file);
+		});
+	}
 
 	async function handleSubmit(
 		event: SubmitEvent<HTMLFormElement>,
@@ -41,6 +57,7 @@ export function EditUserForm({
 		setPending(true);
 
 		const data = new FormData(event.currentTarget);
+		const picture = data.get("picture");
 
 		try {
 			const updated = await editUser(user.id, {
@@ -48,6 +65,11 @@ export function EditUserForm({
 				email: fieldValue(data, "email"),
 				password: fieldValue(data, "password"),
 			});
+
+			if (picture instanceof File && picture.size > 0) {
+				await updateUserPicture(user.id, picture);
+			}
+
 			onSave(updated);
 		} catch (error) {
 			setError(error instanceof Error ? error.message : "Something went wrong");
@@ -81,6 +103,29 @@ export function EditUserForm({
 			}}
 			className="mt-4 flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-6"
 		>
+			<Field.Root
+				name="picture"
+				className={cls.field}
+			>
+				<Field.Label className="group flex w-fit cursor-pointer items-center gap-4">
+					<Avatar
+						name={user.name}
+						src={previewUrl}
+						className="size-12 text-base ring-0 ring-accent transition-all group-hover:ring-1"
+					/>
+					<span className="text-sm font-medium text-accent">
+						{previewUrl ? "Change photo" : "Upload photo"}
+					</span>
+				</Field.Label>
+				<Field.Control
+					type="file"
+					accept="image/*"
+					className="sr-only"
+					onChange={handlePictureChange}
+				/>
+				<Field.Error className={cls.error} />
+			</Field.Root>
+
 			<Field.Root
 				name="name"
 				className={cls.field}

@@ -2,7 +2,7 @@ import type { JSX } from "react";
 import { useEffect, useState } from "react";
 
 import { Avatar } from "#/components/ui/avater";
-import { listUsers } from "#/lib/api";
+import { assetUrl, listUsers } from "#/lib/api";
 import type { Identified, User } from "#/lib/api";
 
 export function UserList(): JSX.Element {
@@ -40,7 +40,10 @@ export function UserList(): JSX.Element {
 					key={user.id}
 					className="flex gap-4 items-center rounded-xl border border-zinc-200 bg-white px-4 py-3"
 				>
-					<Avatar name={user.name} />
+					<Avatar
+						name={user.name}
+						src={assetUrl(user.picture_url)}
+					/>
 					<div>
 						<p className="text-sm font-medium text-zinc-900">{user.name}</p>
 						<p className="text-xs text-zinc-500">{user.email}</p>

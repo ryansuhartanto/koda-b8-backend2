@@ -6,6 +6,7 @@ import { EditUserForm } from "#/components/EditUserForm";
 import { Avatar } from "#/components/ui/avater";
 import { Button } from "#/components/ui/button";
 import { UserList } from "#/components/UserList";
+import { assetUrl } from "#/lib/api";
 import type { Identified, User } from "#/lib/api";
 
 // oxlint-disable-next-line import/no-unassigned-import
@@ -48,7 +49,10 @@ export function App(): JSX.Element {
 		<div className="mx-auto mt-16 w-full max-w-sm">
 			<div className="flex items-center justify-between">
 				<div className="flex gap-4 items-center">
-					<Avatar name={user.name} />
+					<Avatar
+						// name={user.name}
+						src={assetUrl(user.picture_url)}
+					/>
 					<div>
 						<p className="text-sm font-medium text-zinc-900">{user.name}</p>
 						<p className="text-xs text-zinc-500">{user.email}</p>

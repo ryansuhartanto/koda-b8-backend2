@@ -4,6 +4,7 @@ export type Identified = {
 
 export type User = {
 	name: string;
+	picture_url?: string;
 } & Credentials;
 
 type Credentials = {
@@ -13,6 +14,10 @@ type Credentials = {
 
 const URL = "http://localhost:8080";
 const TOKEN = "hello";
+
+export function assetUrl(url?: string): string {
+	return `${URL}/${url}`;
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
 	const res = await fetch(`${URL}${path}`, init);
@@ -64,6 +69,25 @@ export async function editUser(
 		},
 		body: new URLSearchParams(data),
 	});
+}
+
+export async function updateUserPicture(
+	id: number,
+	file?: Blob,
+): Promise<void> {
+	const res = await fetch(`${URL}/users/${id}/picture`, {
+		method: "PUT",
+		headers: {
+			Authorization: TOKEN,
+			...(file && { "Content-Type": file.type }),
+		},
+		body: file,
+	});
+
+	if (!res.ok) {
+		const message = (await res.json()) as string;
+		throw new Error(message);
+	}
 }
 
 export async function deleteUser(id: number): Promise<void> {

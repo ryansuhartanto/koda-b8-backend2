@@ -32,6 +32,8 @@ func NewContainer(querier db.Querier, ctx context.Context) *Container {
 func (c *Container) Handle(r *gin.Engine) {
 	r.Use(middleware.CorsMiddleware())
 
+	r.Static("/uploads", "uploads")
+
 	{
 		auth := r.Group("/auth")
 
@@ -44,6 +46,7 @@ func (c *Container) Handle(r *gin.Engine) {
 
 		users.GET("/", c.UserHandler.HandleList)
 		users.PATCH("/:id", c.UserHandler.HandlePatch)
+		users.PUT("/:id/picture", c.UserHandler.HandlePutPicture)
 		users.DELETE("/:id", c.UserHandler.HandleDelete)
 	}
 }

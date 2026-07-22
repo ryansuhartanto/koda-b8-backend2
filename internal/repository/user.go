@@ -111,7 +111,7 @@ func (r *UserRepository) Update(ctx context.Context, id model.Id, new model.User
 		WITH updated_user AS (
 			UPDATE users SET email = @email, password = @password WHERE id = @id RETURNING *
 		), updated_profile AS (
-			UPDATE profiles SET name = @name, picture_url = @picture_url WHERE id = @id RETURNING *
+			UPDATE profiles SET name = @name, picture_url = COALESCE(@picture_url, picture_url) WHERE id = @id RETURNING *
 		)
 		SELECT * FROM updated_user JOIN updated_profile USING (id)
 	`
@@ -129,6 +129,21 @@ func (r *UserRepository) Update(ctx context.Context, id model.Id, new model.User
 	}
 
 	return user, nil
+}
+
+func (r *UserRepository) UpdatePicture(ctx context.Context, id model.Id, url *string) error {
+	sql := `UPDATE profiles SET picture_url = @picture_url WHERE id = @id`
+
+	args := pgx.StrictNamedArgs{
+		"id":          id.Id,
+		"picture_url": url,
+	}
+	_, err := r.querier.Exec(ctx, sql, args)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *UserRepository) Delete(ctx context.Context, id model.Id) error {
