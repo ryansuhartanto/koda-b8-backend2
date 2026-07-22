@@ -2,7 +2,8 @@
 
 Go exercise implementing a simple REST server.
 
-![Demo](docs/demo.gif)
+![Screenshot 1](docs/1.png)
+![Screenshot 2](docs/2.png)
 
 ## License
 
