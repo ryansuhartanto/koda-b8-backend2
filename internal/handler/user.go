@@ -95,6 +95,12 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 // @Failure      500  {string}  string  "internal error"
 // @Router       /users/ [get]
 func (h *UserHandler) HandleList(ctx *gin.Context) {
+	_, exists := ctx.Get("user.id")
+	if !exists {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
 	users, err := h.service.List()
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
@@ -120,6 +126,11 @@ func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if idCtx, exists := ctx.Get("user.id"); !exists || idCtx != id {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
@@ -156,6 +167,11 @@ func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if idCtx, exists := ctx.Get("user.id"); !exists || idCtx != id {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
@@ -216,6 +232,11 @@ func (h *UserHandler) HandleDelete(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if idCtx, exists := ctx.Get("user.id"); !exists || idCtx != id {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 

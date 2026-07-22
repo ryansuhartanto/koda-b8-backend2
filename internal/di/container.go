@@ -15,17 +15,26 @@ type Container struct {
 	*repository.UserRepository
 	*service.UserService
 	*handler.UserHandler
+
+	jwtKey []byte
 }
 
-func NewContainer(querier db.Querier, ctx context.Context) *Container {
+func NewContainer(
+	querier db.Querier,
+	ctx context.Context,
+
+	jwtKey []byte,
+) *Container {
 	UserRepository := repository.NewUserRepository(querier)
-	UserService := service.NewUserService(UserRepository, ctx)
+	UserService := service.NewUserService(UserRepository, ctx, jwtKey)
 	UserHandler := handler.NewUserHandler(UserService)
 
 	return &Container{
 		UserRepository,
 		UserService,
 		UserHandler,
+
+		jwtKey,
 	}
 }
 
@@ -42,7 +51,7 @@ func (c *Container) Handle(r *gin.Engine) {
 	}
 
 	{
-		users := r.Group("/users", middleware.AuthMiddleware())
+		users := r.Group("/users", middleware.AuthMiddleware(c.jwtKey))
 
 		users.GET("/", c.UserHandler.HandleList)
 		users.PATCH("/:id", c.UserHandler.HandlePatch)

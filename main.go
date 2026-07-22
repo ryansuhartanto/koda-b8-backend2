@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/PeterTakahashi/gin-openapi/openapiui"
 	"github.com/gin-gonic/gin"
@@ -60,7 +61,7 @@ func init() {
 
 func main() {
 	r := gin.Default()
-	container := di.NewContainer(pool, ctx)
+	container := di.NewContainer(pool, ctx, []byte(os.Getenv("JWT_SECRET")))
 
 	r.Any("/", func(ctx *gin.Context) {
 		ctx.Redirect(http.StatusMovedPermanently, "/docs")

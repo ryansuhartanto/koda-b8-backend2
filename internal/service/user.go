@@ -13,6 +13,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/repository"
@@ -21,16 +22,43 @@ import (
 type UserService struct {
 	repository *repository.UserRepository
 	ctx        context.Context
+
+	jwtKey []byte
 }
 
 func NewUserService(
 	repository *repository.UserRepository,
 	ctx context.Context,
+	jwtKey []byte,
 ) *UserService {
 	return &UserService{
 		repository,
 		ctx,
+		jwtKey,
 	}
+}
+
+type AuthResult struct {
+	*model.UserIdentified
+	Token string `json:"jwt"`
+}
+
+func NewAuthResult(
+	user *model.UserIdentified,
+	key []byte,
+) (*AuthResult, error) {
+	claims := model.NewAuthClaim(user)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS384, claims)
+	tokenString, err := token.SignedString(key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &AuthResult{
+		user,
+		tokenString,
+	}, nil
 }
 
 func (s *UserService) List() ([]model.UserIdentified, error) {
@@ -39,7 +67,7 @@ func (s *UserService) List() ([]model.UserIdentified, error) {
 
 var ErrEmailConflict = errors.New("service: email already exists")
 
-func (s *UserService) Register(new model.User) (*model.UserIdentified, error) {
+func (s *UserService) Register(new model.User) (*AuthResult, error) {
 	user, err := s.repository.FindEmail(s.ctx, new.Credentials.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
@@ -66,13 +94,18 @@ func (s *UserService) Register(new model.User) (*model.UserIdentified, error) {
 		return nil, err
 	}
 
-	return user, nil
+	result, err := NewAuthResult(user, s.jwtKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 var ErrEmailUnregistered = errors.New("service: email is not registered")
 var ErrPasswordIncorrect = errors.New("service: password is incorrect")
 
-func (s *UserService) Login(cre model.Credentials) (*model.UserIdentified, error) {
+func (s *UserService) Login(cre model.Credentials) (*AuthResult, error) {
 	user, err := s.repository.FindEmail(s.ctx, cre.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
@@ -91,7 +124,12 @@ func (s *UserService) Login(cre model.Credentials) (*model.UserIdentified, error
 		return nil, errors.Join(ErrPasswordIncorrect, err)
 	}
 
-	return user, nil
+	result, err := NewAuthResult(user, s.jwtKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, error) {
