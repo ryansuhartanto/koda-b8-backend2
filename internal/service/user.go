@@ -133,6 +133,18 @@ func (s *UserService) Login(cre model.Credentials) (*AuthResult, error) {
 }
 
 func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, error) {
+	rawPassword, err := base64.StdEncoding.DecodeString(string(new.Password))
+	if err != nil {
+		return nil, err
+	}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword(rawPassword, bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	new.Password = model.Password(encryptedPassword)
+
 	user, err := s.repository.Update(s.ctx, id, new)
 	if err != nil {
 		return nil, err
