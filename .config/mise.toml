@@ -7,14 +7,20 @@ vp = "latest"
 _.file = { path = ".env", redact = false }
 
 [tasks.dev]
+run = "mise run dev:be ::: dev:fe"
+
+[tasks."dev:be"]
 run = "go tool air"
 
-[tasks."db.create"]
+[tasks."dev:fe"]
+run = "bun run dev"
+
+[tasks."db:create"]
 usage = 'arg "[name]"'
 run = "migrate create -ext sql -dir internal/db/migrations -seq ${usage_name}"
 
-[tasks."db.up"]
+[tasks."db:up"]
 run = "migrate -database pgx5://: -path internal/db/migrations up"
 
-[tasks."db.down"]
+[tasks."db:down"]
 run = "migrate -database pgx5://: -path internal/db/migrations down"
