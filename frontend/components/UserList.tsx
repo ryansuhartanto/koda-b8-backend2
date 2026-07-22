@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 import { useEffect, useState } from "react";
 
+import { Avatar } from "#/components/ui/avater";
 import { listUsers } from "#/lib/api";
 import type { Identified, User } from "#/lib/api";
 
@@ -37,10 +38,13 @@ export function UserList(): JSX.Element {
 			{users.map((user) => (
 				<li
 					key={user.id}
-					className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3"
+					className="flex gap-4 items-center rounded-xl border border-zinc-200 bg-white px-4 py-3"
 				>
-					<span className="text-sm font-medium text-zinc-900">{user.name}</span>
-					<span className="text-sm text-zinc-500">{user.email}</span>
+					<Avatar name={user.name} />
+					<div>
+						<p className="text-sm font-medium text-zinc-900">{user.name}</p>
+						<p className="text-xs text-zinc-500">{user.email}</p>
+					</div>
 				</li>
 			))}
 		</ul>

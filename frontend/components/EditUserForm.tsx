@@ -26,7 +26,7 @@ export function EditUserForm({
 	onCancel,
 }: {
 	user: User & Identified;
-	onSave: (user: User) => void;
+	onSave: (user: User & Identified) => void;
 	onDelete: () => void;
 	onCancel: () => void;
 }): JSX.Element {

@@ -27,7 +27,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 const encoder = new TextEncoder();
 
-export async function register(data: User): Promise<User> {
+export async function register(data: User): Promise<User & Identified> {
 	data.password = encoder.encode(data.password).toBase64();
 	return request("/auth/register", {
 		method: "POST",
@@ -35,7 +35,7 @@ export async function register(data: User): Promise<User> {
 	});
 }
 
-export async function login(data: Credentials): Promise<User> {
+export async function login(data: Credentials): Promise<User & Identified> {
 	data.password = encoder.encode(data.password).toBase64();
 	return request("/auth/login", {
 		method: "POST",
@@ -52,7 +52,10 @@ export async function listUsers(): Promise<Array<User & Identified>> {
 	});
 }
 
-export async function editUser(id: number, data: User): Promise<User> {
+export async function editUser(
+	id: number,
+	data: User,
+): Promise<User & Identified> {
 	data.password = encoder.encode(data.password).toBase64();
 	return request(`/users/${id}`, {
 		method: "PATCH",

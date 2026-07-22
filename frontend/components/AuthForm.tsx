@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
 import { login, register } from "#/lib/api";
-import type { User } from "#/lib/api";
+import type { Identified, User } from "#/lib/api";
 
 const cls = {
 	field: "flex flex-col gap-1.5",
@@ -22,7 +22,7 @@ function fieldValue(data: FormData, key: string): string {
 export function AuthForm({
 	onAuth,
 }: {
-	onAuth: (user: User) => void;
+	onAuth: (user: User & Identified) => void;
 }): JSX.Element {
 	const [mode, setMode] = useState<"login" | "register">("login");
 	const [error, setError] = useState<string | undefined>(undefined);

@@ -3,25 +3,28 @@ import { useState } from "react";
 
 import { AuthForm } from "#/components/AuthForm";
 import { EditUserForm } from "#/components/EditUserForm";
+import { Avatar } from "#/components/ui/avater";
 import { Button } from "#/components/ui/button";
 import { UserList } from "#/components/UserList";
-import type { User } from "#/lib/api";
+import type { Identified, User } from "#/lib/api";
 
 // oxlint-disable-next-line import/no-unassigned-import
 import "#/index.css";
 
 const STORAGE_KEY = "user";
 
-function readStoredUser(): User | undefined {
+function readStoredUser(): (User & Identified) | undefined {
 	const raw = localStorage.getItem(STORAGE_KEY);
-	return raw ? (JSON.parse(raw) as User) : undefined;
+	return raw ? (JSON.parse(raw) as User & Identified) : undefined;
 }
 
 export function App(): JSX.Element {
-	const [user, setUser] = useState<User | undefined>(readStoredUser);
+	const [user, setUser] = useState<(User & Identified) | undefined>(
+		readStoredUser,
+	);
 	const [editing, setEditing] = useState(false);
 
-	function handleAuth(nextUser: User) {
+	function handleAuth(nextUser: User & Identified) {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
 		setUser(nextUser);
 	}
@@ -31,7 +34,7 @@ export function App(): JSX.Element {
 		setUser(undefined);
 	}
 
-	function handleSave(nextUser: User) {
+	function handleSave(nextUser: User & Identified) {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
 		setUser(nextUser);
 		setEditing(false);
@@ -44,9 +47,12 @@ export function App(): JSX.Element {
 	return (
 		<div className="mx-auto mt-16 w-full max-w-sm">
 			<div className="flex items-center justify-between">
-				<div>
-					<p className="text-sm font-medium text-zinc-900">{user.name}</p>
-					<p className="text-xs text-zinc-500">{user.email}</p>
+				<div className="flex gap-4 items-center">
+					<Avatar name={user.name} />
+					<div>
+						<p className="text-sm font-medium text-zinc-900">{user.name}</p>
+						<p className="text-xs text-zinc-500">{user.email}</p>
+					</div>
 				</div>
 				<div className="flex gap-2">
 					{!editing && (

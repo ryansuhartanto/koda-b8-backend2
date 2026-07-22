@@ -1,11 +1,10 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import type { ComponentProps, JSX } from "react";
 
-import { cn } from "#/lib/cn";
+import { cn } from "#/lib/utils";
 
-type ButtonProps = Omit<ComponentProps<typeof BaseButton>, "className"> & {
+type ButtonProps = ComponentProps<typeof BaseButton> & {
 	variant?: "primary" | "ghost";
-	className?: string;
 };
 
 const variantClasses = {
