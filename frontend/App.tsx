@@ -50,7 +50,7 @@ export function App(): JSX.Element {
 			<div className="flex items-center justify-between">
 				<div className="flex gap-4 items-center">
 					<Avatar
-						// name={user.name}
+						name={user.name}
 						src={assetUrl(user.picture_url)}
 					/>
 					<div>
