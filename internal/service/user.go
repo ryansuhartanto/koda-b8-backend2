@@ -192,7 +192,7 @@ func (s *UserService) UpdatePicture(id model.Id, data []byte) error {
 func (s *UserService) Delete(id model.Id) error {
 	err := s.repository.Delete(s.ctx, id)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	return nil
