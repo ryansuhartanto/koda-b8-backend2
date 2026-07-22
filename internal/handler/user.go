@@ -38,7 +38,7 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Register(new)
+	user, err := h.service.Register(ctx, new)
 	if err != nil {
 		status := http.StatusInternalServerError
 		if errors.Is(err, service.ErrEmailConflict) {
@@ -70,7 +70,7 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Login(cre)
+	user, err := h.service.Login(ctx, cre)
 	if err != nil {
 		status := http.StatusInternalServerError
 		if errors.Is(err, service.ErrEmailUnregistered) {
@@ -101,7 +101,7 @@ func (h *UserHandler) HandleList(ctx *gin.Context) {
 		return
 	}
 
-	users, err := h.service.List()
+	users, err := h.service.List(ctx)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -140,7 +140,7 @@ func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Edit(id, new)
+	user, err := h.service.Edit(ctx, id, new)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -207,7 +207,7 @@ func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 		data = nil
 	}
 
-	if err := h.service.UpdatePicture(id, data); err != nil {
+	if err := h.service.UpdatePicture(ctx, id, data); err != nil {
 		status := http.StatusInternalServerError
 		if errors.Is(err, service.ErrImageUnsupported) {
 			status = http.StatusUnprocessableEntity
@@ -240,7 +240,7 @@ func (h *UserHandler) HandleDelete(ctx *gin.Context) {
 		return
 	}
 
-	err := h.service.Delete(id)
+	err := h.service.Delete(ctx, id)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
 		return

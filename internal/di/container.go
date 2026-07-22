@@ -26,7 +26,7 @@ func NewContainer(
 	jwtKey []byte,
 ) *Container {
 	UserRepository := repository.NewUserRepository(querier)
-	UserService := service.NewUserService(UserRepository, ctx, jwtKey)
+	UserService := service.NewUserService(UserRepository, jwtKey)
 	UserHandler := handler.NewUserHandler(UserService)
 
 	return &Container{

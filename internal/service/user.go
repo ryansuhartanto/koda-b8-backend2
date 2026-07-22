@@ -21,19 +21,16 @@ import (
 
 type UserService struct {
 	repository *repository.UserRepository
-	ctx        context.Context
 
 	jwtKey []byte
 }
 
 func NewUserService(
 	repository *repository.UserRepository,
-	ctx context.Context,
 	jwtKey []byte,
 ) *UserService {
 	return &UserService{
 		repository,
-		ctx,
 		jwtKey,
 	}
 }
@@ -61,14 +58,14 @@ func NewAuthResult(
 	}, nil
 }
 
-func (s *UserService) List() ([]model.UserIdentified, error) {
-	return s.repository.FindAll(s.ctx)
+func (s *UserService) List(ctx context.Context) ([]model.UserIdentified, error) {
+	return s.repository.FindAll(ctx)
 }
 
 var ErrEmailConflict = errors.New("service: email already exists")
 
-func (s *UserService) Register(new model.User) (*AuthResult, error) {
-	user, err := s.repository.FindEmail(s.ctx, new.Credentials.Email)
+func (s *UserService) Register(ctx context.Context, new model.User) (*AuthResult, error) {
+	user, err := s.repository.FindEmail(ctx, new.Credentials.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
@@ -89,7 +86,7 @@ func (s *UserService) Register(new model.User) (*AuthResult, error) {
 
 	new.Password = model.Password(encryptedPassword)
 
-	user, err = s.repository.Add(s.ctx, new)
+	user, err = s.repository.Add(ctx, new)
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +102,8 @@ func (s *UserService) Register(new model.User) (*AuthResult, error) {
 var ErrEmailUnregistered = errors.New("service: email is not registered")
 var ErrPasswordIncorrect = errors.New("service: password is incorrect")
 
-func (s *UserService) Login(cre model.Credentials) (*AuthResult, error) {
-	user, err := s.repository.FindEmail(s.ctx, cre.Email)
+func (s *UserService) Login(ctx context.Context, cre model.Credentials) (*AuthResult, error) {
+	user, err := s.repository.FindEmail(ctx, cre.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
 	}
@@ -132,7 +129,7 @@ func (s *UserService) Login(cre model.Credentials) (*AuthResult, error) {
 	return result, nil
 }
 
-func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, error) {
+func (s *UserService) Edit(ctx context.Context, id model.Id, new model.User) (*model.UserIdentified, error) {
 	rawPassword, err := base64.StdEncoding.DecodeString(string(new.Password))
 	if err != nil {
 		return nil, err
@@ -145,7 +142,7 @@ func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, 
 
 	new.Password = model.Password(encryptedPassword)
 
-	user, err := s.repository.Update(s.ctx, id, new)
+	user, err := s.repository.Update(ctx, id, new)
 	if err != nil {
 		return nil, err
 	}
@@ -155,9 +152,9 @@ func (s *UserService) Edit(id model.Id, new model.User) (*model.UserIdentified, 
 
 var ErrImageUnsupported = errors.New("service: unsupported image format")
 
-func (s *UserService) UpdatePicture(id model.Id, data []byte) error {
+func (s *UserService) UpdatePicture(ctx context.Context, id model.Id, data []byte) error {
 	if data == nil {
-		if err := s.repository.UpdatePicture(s.ctx, id, nil); err != nil {
+		if err := s.repository.UpdatePicture(ctx, id, nil); err != nil {
 			return err
 		}
 
@@ -182,15 +179,15 @@ func (s *UserService) UpdatePicture(id model.Id, data []byte) error {
 		return err
 	}
 
-	if err := s.repository.UpdatePicture(s.ctx, id, &file); err != nil {
+	if err := s.repository.UpdatePicture(ctx, id, &file); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *UserService) Delete(id model.Id) error {
-	err := s.repository.Delete(s.ctx, id)
+func (s *UserService) Delete(ctx context.Context, id model.Id) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
