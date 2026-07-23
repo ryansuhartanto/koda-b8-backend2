@@ -111,12 +111,21 @@ func (s *UserService) Edit(ctx context.Context, id model.Id, new model.User) (*m
 		return nil, err
 	}
 
-	encryptedPassword, err := bcrypt.GenerateFromPassword(rawPassword, bcrypt.DefaultCost)
+	current, err := s.repository.Find(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	new.Password = model.Password(encryptedPassword)
+	if bcrypt.CompareHashAndPassword([]byte(current.Password), rawPassword) == nil {
+		new.Password = current.Password
+	} else {
+		encryptedPassword, err := bcrypt.GenerateFromPassword(rawPassword, bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
+		}
+
+		new.Password = model.Password(encryptedPassword)
+	}
 
 	user, err := s.repository.Update(ctx, id, new)
 	if err != nil {
