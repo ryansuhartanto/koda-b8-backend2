@@ -10,9 +10,12 @@ const docTemplate = `{
         "schemas": {
             "model.AuthResult": {
                 "properties": {
+                    "created_at": {
+                        "form": "created_at",
+                        "type": "string"
+                    },
                     "email": {
                         "form": "email",
-                        "format": "email",
                         "type": "string"
                     },
                     "id": {
@@ -29,11 +32,18 @@ const docTemplate = `{
                     },
                     "password": {
                         "form": "password",
-                        "format": "byte",
                         "type": "string"
                     },
                     "picture_url": {
                         "form": "picture_url",
+                        "type": "string"
+                    },
+                    "profile_updated_at": {
+                        "form": "profile_updated_at",
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "form": "updated_at",
                         "type": "string"
                     }
                 },
@@ -44,48 +54,33 @@ const docTemplate = `{
                 ],
                 "type": "object"
             },
-            "model.HandlerResult-array_model_UserIdentified": {
+            "model.Credentials": {
                 "properties": {
-                    "message": {
+                    "email": {
+                        "form": "email",
                         "type": "string"
                     },
-                    "results": {
-                        "items": {
-                            "$ref": "#/components/schemas/model.UserIdentified"
-                        },
-                        "type": "array",
-                        "uniqueItems": false
-                    },
-                    "success": {
-                        "type": "boolean"
+                    "password": {
+                        "form": "password",
+                        "type": "string"
                     }
                 },
+                "required": [
+                    "email",
+                    "password"
+                ],
                 "type": "object"
             },
-            "model.HandlerResult-model_AuthResult": {
+            "model.Problem": {
                 "properties": {
-                    "message": {
+                    "detail": {
                         "type": "string"
                     },
-                    "results": {
-                        "$ref": "#/components/schemas/model.AuthResult"
+                    "status": {
+                        "type": "integer"
                     },
-                    "success": {
-                        "type": "boolean"
-                    }
-                },
-                "type": "object"
-            },
-            "model.HandlerResult-model_UserIdentified": {
-                "properties": {
-                    "message": {
+                    "title": {
                         "type": "string"
-                    },
-                    "results": {
-                        "$ref": "#/components/schemas/model.UserIdentified"
-                    },
-                    "success": {
-                        "type": "boolean"
                     }
                 },
                 "type": "object"
@@ -94,7 +89,6 @@ const docTemplate = `{
                 "properties": {
                     "email": {
                         "form": "email",
-                        "format": "email",
                         "type": "string"
                     },
                     "name": {
@@ -103,7 +97,6 @@ const docTemplate = `{
                     },
                     "password": {
                         "form": "password",
-                        "format": "byte",
                         "type": "string"
                     },
                     "picture_url": {
@@ -120,9 +113,12 @@ const docTemplate = `{
             },
             "model.UserIdentified": {
                 "properties": {
+                    "created_at": {
+                        "form": "created_at",
+                        "type": "string"
+                    },
                     "email": {
                         "form": "email",
-                        "format": "email",
                         "type": "string"
                     },
                     "id": {
@@ -135,11 +131,18 @@ const docTemplate = `{
                     },
                     "password": {
                         "form": "password",
-                        "format": "byte",
                         "type": "string"
                     },
                     "picture_url": {
                         "form": "picture_url",
+                        "type": "string"
+                    },
+                    "profile_updated_at": {
+                        "form": "profile_updated_at",
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "form": "updated_at",
                         "type": "string"
                     }
                 },
@@ -178,43 +181,32 @@ const docTemplate = `{
     "paths": {
         "/auth/login": {
             "post": {
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "email",
-                        "required": true,
-                        "schema": {
-                            "form": "email",
-                            "format": "email",
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "password",
-                        "required": true,
-                        "schema": {
-                            "form": "password",
-                            "format": "byte",
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/model.Credentials",
+                                "summary": "body",
+                                "description": "Credentials"
+                            }
+                        },
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "type": "string"
+                                "$ref": "#/components/schemas/model.Credentials",
+                                "summary": "formData",
+                                "description": "Credentials"
                             }
                         }
-                    }
+                    },
+                    "description": "Credentials | Credentials",
+                    "required": true
                 },
                 "responses": {
                     "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/model.HandlerResult-model_AuthResult"
+                                    "$ref": "#/components/schemas/model.AuthResult"
                                 }
                             }
                         },
@@ -224,41 +216,31 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "invalid request body"
+                        "description": "Bad Request"
                     },
                     "401": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "email not registered"
-                    },
-                    "422": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "description": "incorrect password"
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "internal error"
+                        "description": "Internal Server Error"
                     }
                 },
                 "summary": "Log in",
@@ -273,21 +255,16 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "oneOf": [
-                                    {
-                                        "type": "object"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/model.User",
-                                        "summary": "body",
-                                        "description": "New user"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/model.User",
+                                "summary": "body",
+                                "description": "New user"
                             }
                         },
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "type": "string"
+                                "$ref": "#/components/schemas/model.User",
+                                "summary": "formData",
+                                "description": "New user"
                             }
                         },
                         "multipart/form-data": {
@@ -296,7 +273,7 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "description": "New user",
+                    "description": "New user | New user",
                     "required": true
                 },
                 "responses": {
@@ -304,7 +281,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/model.HandlerResult-model_AuthResult"
+                                    "$ref": "#/components/schemas/model.AuthResult"
                                 }
                             }
                         },
@@ -314,31 +291,31 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "invalid request body"
+                        "description": "Bad Request"
                     },
                     "409": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "email already exists"
+                        "description": "Conflict"
                     },
                     "500": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "internal error"
+                        "description": "Internal Server Error"
                     }
                 },
                 "summary": "Register a new user",
@@ -354,21 +331,34 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/model.HandlerResult-array_model_UserIdentified"
+                                    "items": {
+                                        "$ref": "#/components/schemas/model.UserIdentified"
+                                    },
+                                    "type": "array"
                                 }
                             }
                         },
                         "description": "OK"
                     },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/model.Problem"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
                     "500": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "internal error"
+                        "description": "Internal Server Error"
                     }
                 },
                 "security": [
@@ -403,21 +393,31 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "invalid request"
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/model.Problem"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "internal error"
+                        "description": "Internal Server Error"
                     }
                 },
                 "security": [
@@ -446,30 +446,20 @@ const docTemplate = `{
                     "content": {
                         "application/json": {
                             "schema": {
-                                "oneOf": [
-                                    {
-                                        "type": "object"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/model.User",
-                                        "summary": "body",
-                                        "description": "User fields"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/model.User",
+                                "summary": "body",
+                                "description": "User fields"
                             }
                         },
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "type": "string"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "type": "object"
+                                "$ref": "#/components/schemas/model.User",
+                                "summary": "formData",
+                                "description": "User fields"
                             }
                         }
                     },
-                    "description": "User fields",
+                    "description": "User fields | User fields",
                     "required": true
                 },
                 "responses": {
@@ -477,7 +467,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/model.HandlerResult-model_UserIdentified"
+                                    "$ref": "#/components/schemas/model.UserIdentified"
                                 }
                             }
                         },
@@ -487,21 +477,31 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "invalid request"
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/model.Problem"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     },
                     "500": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "internal error"
+                        "description": "Internal Server Error"
                     }
                 },
                 "security": [
@@ -530,21 +530,10 @@ const docTemplate = `{
                 ],
                 "requestBody": {
                     "content": {
-                        "application/octet-stream": {
-                            "schema": {
-                                "format": "binary",
-                                "type": "string"
-                            }
-                        },
                         "application/x-www-form-urlencoded": {
                             "schema": {
                                 "title": "picture",
                                 "type": "file"
-                            }
-                        },
-                        "image/*": {
-                            "schema": {
-                                "type": "string"
                             }
                         },
                         "multipart/form-data": {
@@ -563,41 +552,51 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "invalid request"
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/model.Problem"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     },
                     "413": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "file too large"
+                        "description": "Request Entity Too Large"
                     },
                     "422": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "unsupported image format"
+                        "description": "Unprocessable Entity"
                     },
                     "500": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/model.Problem"
                                 }
                             }
                         },
-                        "description": "internal error"
+                        "description": "Internal Server Error"
                     }
                 },
                 "security": [

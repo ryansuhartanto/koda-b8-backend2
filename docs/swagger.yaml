@@ -2,9 +2,11 @@ components:
   schemas:
     model.AuthResult:
       properties:
+        created_at:
+          form: created_at
+          type: string
         email:
           form: email
-          format: email
           type: string
         id:
           form: id
@@ -17,58 +19,52 @@ components:
           type: string
         password:
           form: password
-          format: byte
           type: string
         picture_url:
           form: picture_url
+          type: string
+        profile_updated_at:
+          form: profile_updated_at
+          type: string
+        updated_at:
+          form: updated_at
           type: string
       required:
         - email
         - name
         - password
       type: object
-    model.HandlerResult-array_model_UserIdentified:
+    model.Credentials:
       properties:
-        message:
+        email:
+          form: email
           type: string
-        results:
-          items:
-            $ref: "#/components/schemas/model.UserIdentified"
-          type: array
-          uniqueItems: false
-        success:
-          type: boolean
+        password:
+          form: password
+          type: string
+      required:
+        - email
+        - password
       type: object
-    model.HandlerResult-model_AuthResult:
+    model.Problem:
       properties:
-        message:
+        detail:
           type: string
-        results:
-          $ref: "#/components/schemas/model.AuthResult"
-        success:
-          type: boolean
-      type: object
-    model.HandlerResult-model_UserIdentified:
-      properties:
-        message:
+        status:
+          type: integer
+        title:
           type: string
-        results:
-          $ref: "#/components/schemas/model.UserIdentified"
-        success:
-          type: boolean
       type: object
     model.User:
       properties:
         email:
           form: email
-          format: email
           type: string
         name:
           form: name
           type: string
         password:
           form: password
-          format: byte
           type: string
         picture_url:
           form: picture_url
@@ -80,9 +76,11 @@ components:
       type: object
     model.UserIdentified:
       properties:
+        created_at:
+          form: created_at
+          type: string
         email:
           form: email
-          format: email
           type: string
         id:
           form: id
@@ -92,10 +90,15 @@ components:
           type: string
         password:
           form: password
-          format: byte
           type: string
         picture_url:
           form: picture_url
+          type: string
+        profile_updated_at:
+          form: profile_updated_at
+          type: string
+        updated_at:
+          form: updated_at
           type: string
       required:
         - email
@@ -123,57 +126,45 @@ openapi: 3.1.0
 paths:
   /auth/login:
     post:
-      parameters:
-        - in: query
-          name: email
-          required: true
-          schema:
-            form: email
-            format: email
-            type: string
-        - in: query
-          name: password
-          required: true
-          schema:
-            form: password
-            format: byte
-            type: string
       requestBody:
         content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/model.Credentials"
+              description: Credentials
+              summary: body
           application/x-www-form-urlencoded:
             schema:
-              type: string
+              $ref: "#/components/schemas/model.Credentials"
+              description: Credentials
+              summary: formData
+        description: Credentials | Credentials
+        required: true
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/model.HandlerResult-model_AuthResult"
+                $ref: "#/components/schemas/model.AuthResult"
           description: OK
         "400":
           content:
             application/json:
               schema:
-                type: string
-          description: invalid request body
+                $ref: "#/components/schemas/model.Problem"
+          description: Bad Request
         "401":
           content:
             application/json:
               schema:
-                type: string
-          description: email not registered
-        "422":
-          content:
-            application/json:
-              schema:
-                type: string
-          description: incorrect password
+                $ref: "#/components/schemas/model.Problem"
+          description: Unauthorized
         "500":
           content:
             application/json:
               schema:
-                type: string
-          description: internal error
+                $ref: "#/components/schemas/model.Problem"
+          description: Internal Server Error
       summary: Log in
       tags:
         - auth
@@ -183,44 +174,44 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - type: object
-                - $ref: "#/components/schemas/model.User"
-                  description: New user
-                  summary: body
+              $ref: "#/components/schemas/model.User"
+              description: New user
+              summary: body
           application/x-www-form-urlencoded:
             schema:
-              type: string
+              $ref: "#/components/schemas/model.User"
+              description: New user
+              summary: formData
           multipart/form-data:
             schema:
               type: object
-        description: New user
+        description: New user | New user
         required: true
       responses:
         "201":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/model.HandlerResult-model_AuthResult"
+                $ref: "#/components/schemas/model.AuthResult"
           description: Created
         "400":
           content:
             application/json:
               schema:
-                type: string
-          description: invalid request body
+                $ref: "#/components/schemas/model.Problem"
+          description: Bad Request
         "409":
           content:
             application/json:
               schema:
-                type: string
-          description: email already exists
+                $ref: "#/components/schemas/model.Problem"
+          description: Conflict
         "500":
           content:
             application/json:
               schema:
-                type: string
-          description: internal error
+                $ref: "#/components/schemas/model.Problem"
+          description: Internal Server Error
       summary: Register a new user
       tags:
         - auth
@@ -231,14 +222,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/model.HandlerResult-array_model_UserIdentified"
+                items:
+                  $ref: "#/components/schemas/model.UserIdentified"
+                type: array
           description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/model.Problem"
+          description: Unauthorized
         "500":
           content:
             application/json:
               schema:
-                type: string
-          description: internal error
+                $ref: "#/components/schemas/model.Problem"
+          description: Internal Server Error
       security:
         - BearerAuth: []
       summary: List users
@@ -260,14 +259,20 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-          description: invalid request
+                $ref: "#/components/schemas/model.Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/model.Problem"
+          description: Unauthorized
         "500":
           content:
             application/json:
               schema:
-                type: string
-          description: internal error
+                $ref: "#/components/schemas/model.Problem"
+          description: Internal Server Error
       security:
         - BearerAuth: []
       summary: Delete a user
@@ -285,38 +290,41 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - type: object
-                - $ref: "#/components/schemas/model.User"
-                  description: User fields
-                  summary: body
+              $ref: "#/components/schemas/model.User"
+              description: User fields
+              summary: body
           application/x-www-form-urlencoded:
             schema:
-              type: string
-          multipart/form-data:
-            schema:
-              type: object
-        description: User fields
+              $ref: "#/components/schemas/model.User"
+              description: User fields
+              summary: formData
+        description: User fields | User fields
         required: true
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/model.HandlerResult-model_UserIdentified"
+                $ref: "#/components/schemas/model.UserIdentified"
           description: OK
         "400":
           content:
             application/json:
               schema:
-                type: string
-          description: invalid request
+                $ref: "#/components/schemas/model.Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/model.Problem"
+          description: Unauthorized
         "500":
           content:
             application/json:
               schema:
-                type: string
-          description: internal error
+                $ref: "#/components/schemas/model.Problem"
+          description: Internal Server Error
       security:
         - BearerAuth: []
       summary: Update a user
@@ -333,17 +341,10 @@ paths:
             type: integer
       requestBody:
         content:
-          application/octet-stream:
-            schema:
-              format: binary
-              type: string
           application/x-www-form-urlencoded:
             schema:
               title: picture
               type: file
-          image/*:
-            schema:
-              type: string
           multipart/form-data:
             schema:
               type: object
@@ -355,26 +356,32 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-          description: invalid request
+                $ref: "#/components/schemas/model.Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/model.Problem"
+          description: Unauthorized
         "413":
           content:
             application/json:
               schema:
-                type: string
-          description: file too large
+                $ref: "#/components/schemas/model.Problem"
+          description: Request Entity Too Large
         "422":
           content:
             application/json:
               schema:
-                type: string
-          description: unsupported image format
+                $ref: "#/components/schemas/model.Problem"
+          description: Unprocessable Entity
         "500":
           content:
             application/json:
               schema:
-                type: string
-          description: internal error
+                $ref: "#/components/schemas/model.Problem"
+          description: Internal Server Error
       security:
         - BearerAuth: []
       summary: Upload or clear a user's profile picture

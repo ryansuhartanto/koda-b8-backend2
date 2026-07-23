@@ -21,16 +21,16 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 }
 
 // HandleRegister godoc
-// @Summary      Register a new user
-// @Tags         auth
-// @Accept       x-www-form-urlencoded,json,mpfd
-// @Produce      json
-// @Param        body  body      model.User  true  "New user"
-// @Success      201   {object}  model.AuthResult
-// @Failure      400   {object}  model.Problem
-// @Failure      409   {object}  model.Problem
-// @Failure      500   {object}  model.Problem
-// @Router       /auth/register [post]
+// @Summary  Register a new user
+// @Tags     auth
+// @Accept   mpfd
+// @Param    formData formData model.User true "New user"
+// @Param    body     body     model.User true "New user"
+// @Success  201      {object} model.AuthResult
+// @Failure  400      {object} model.Problem
+// @Failure  409      {object} model.Problem
+// @Failure  500      {object} model.Problem
+// @Router   /auth/register [post]
 func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 	var new model.User
 	if err := ctx.ShouldBind(&new); err != nil {
@@ -56,16 +56,15 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 }
 
 // HandleLogin godoc
-// @Summary      Log in
-// @Tags         auth
-// @Accept       x-www-form-urlencoded
-// @Produce      json
-// @Param        body  query     model.Credentials  true  "Credentials"
-// @Success      200   {object}  model.AuthResult
-// @Failure      400   {object}  model.Problem
-// @Failure      401   {object}  model.Problem
-// @Failure      500   {object}  model.Problem
-// @Router       /auth/login [post]
+// @Summary  Log in
+// @Tags     auth
+// @Param    formData formData model.Credentials true "Credentials"
+// @Param    body     body     model.Credentials true "Credentials"
+// @Success  200      {object} model.AuthResult
+// @Failure  400      {object} model.Problem
+// @Failure  401      {object} model.Problem
+// @Failure  500      {object} model.Problem
+// @Router   /auth/login [post]
 func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 	var cre model.Credentials
 	if err := ctx.ShouldBind(&cre); err != nil {
@@ -95,14 +94,14 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 }
 
 // HandleList godoc
-// @Summary      List users
-// @Tags         users
-// @Produce      json
-// @Security     BearerAuth
-// @Success      200  {array}   model.UserIdentified
-// @Failure      401  {object}  model.Problem
-// @Failure      500  {object}  model.Problem
-// @Router       /users/ [get]
+// @Summary  List users
+// @Tags     users
+// @Produce  json
+// @Security BearerAuth
+// @Success  200      {array}  model.UserIdentified
+// @Failure  401      {object} model.Problem
+// @Failure  500      {object} model.Problem
+// @Router   /users/ [get]
 func (h *UserHandler) HandleList(ctx *gin.Context) {
 	if _, exists := ctx.Get("user.id"); !exists {
 		model.AbortProblem(ctx, http.StatusUnauthorized, "")
@@ -119,18 +118,17 @@ func (h *UserHandler) HandleList(ctx *gin.Context) {
 }
 
 // HandlePatch godoc
-// @Summary      Update a user
-// @Tags         users
-// @Accept       x-www-form-urlencoded,json,mpfd
-// @Produce      json
-// @Security     BearerAuth
-// @Param        id    path      int         true  "User ID"
-// @Param        body  body      model.User  true  "User fields"
-// @Success      200   {object}  model.UserIdentified
-// @Failure      400   {object}  model.Problem
-// @Failure      401   {object}  model.Problem
-// @Failure      500   {object}  model.Problem
-// @Router       /users/{id} [patch]
+// @Summary  Update a user
+// @Tags     users
+// @Security BearerAuth
+// @Param    id       path     int        true "User ID"
+// @Param    formData formData model.User true "User fields"
+// @Param    body     body     model.User true "User fields"
+// @Success  200      {object} model.UserIdentified
+// @Failure  400      {object} model.Problem
+// @Failure  401      {object} model.Problem
+// @Failure  500      {object} model.Problem
+// @Router   /users/{id} [patch]
 func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
@@ -159,20 +157,19 @@ func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 }
 
 // HandlePutPicture godoc
-// @Summary      Upload or clear a user's profile picture
-// @Tags         users
-// @Accept       image/*,mpfd
-// @Accept       octet-stream
-// @Security     BearerAuth
-// @Param        id       path  int   true  "User ID"
-// @Param        picture  formData  file  false  "Picture file (omit or send empty body to clear)"
-// @Success      200  "OK"
-// @Failure      400  {object}  model.Problem
-// @Failure      401  {object}  model.Problem
-// @Failure      413  {object}  model.Problem
-// @Failure      422  {object}  model.Problem
-// @Failure      500  {object}  model.Problem
-// @Router       /users/{id}/picture [put]
+// @Summary  Upload or clear a user's profile picture
+// @Tags     users
+// @Security BearerAuth
+// @Accept   mpfd
+// @Param    id       path     int  true  "User ID"
+// @Param    picture  formData file false "Picture file (omit or send empty body to clear)"
+// @Success  200
+// @Failure  400      {object} model.Problem
+// @Failure  401      {object} model.Problem
+// @Failure  413      {object} model.Problem
+// @Failure  422      {object} model.Problem
+// @Failure  500      {object} model.Problem
+// @Router   /users/{id}/picture [put]
 func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
@@ -230,15 +227,15 @@ func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 }
 
 // HandleDelete godoc
-// @Summary      Delete a user
-// @Tags         users
-// @Security     BearerAuth
-// @Param        id  path  int  true  "User ID"
-// @Success      200  "OK"
-// @Failure      400  {object}  model.Problem
-// @Failure      401  {object}  model.Problem
-// @Failure      500  {object}  model.Problem
-// @Router       /users/{id} [delete]
+// @Summary  Delete a user
+// @Tags     users
+// @Security BearerAuth
+// @Param    id       path     int true  "User ID"
+// @Success  200
+// @Failure  400      {object} model.Problem
+// @Failure  401      {object} model.Problem
+// @Failure  500      {object} model.Problem
+// @Router   /users/{id} [delete]
 func (h *UserHandler) HandleDelete(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {

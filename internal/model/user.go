@@ -19,8 +19,10 @@ type ProfileTimestamps struct {
 
 type UserIdentified struct {
 	Id
+
 	Timestamps
 	ProfileTimestamps
+
 	User
 }
 
