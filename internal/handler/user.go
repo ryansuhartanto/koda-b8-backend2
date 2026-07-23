@@ -26,25 +26,29 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 // @Accept       x-www-form-urlencoded,json,mpfd
 // @Produce      json
 // @Param        body  body      model.User  true  "New user"
-// @Success      201   {object}  service.AuthResult
-// @Failure      400   {string}  string  "invalid request body"
-// @Failure      409   {string}  string  "email already exists"
-// @Failure      500   {string}  string  "internal error"
+// @Success      201   {object}  model.AuthResult
+// @Failure      400   {object}  model.Problem
+// @Failure      409   {object}  model.Problem
+// @Failure      500   {object}  model.Problem
 // @Router       /auth/register [post]
 func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 	var new model.User
 	if err := ctx.ShouldBind(&new); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := h.service.Register(ctx, new)
 	if err != nil {
 		status := http.StatusInternalServerError
+		detail := err.Error()
+
 		if errors.Is(err, service.ErrEmailConflict) {
 			status = http.StatusConflict
+			detail = "Email already registered"
 		}
-		ctx.AbortWithStatusJSON(status, err.Error())
+
+		model.AbortProblem(ctx, status, detail)
 		return
 	}
 
@@ -54,32 +58,36 @@ func (h *UserHandler) HandleRegister(ctx *gin.Context) {
 // HandleLogin godoc
 // @Summary      Log in
 // @Tags         auth
-// @Accept       x-www-form-urlencoded,json,mpfd
+// @Accept       x-www-form-urlencoded
 // @Produce      json
-// @Param        body  body      model.Credentials  true  "Credentials"
-// @Success      200   {object}  service.AuthResult
-// @Failure      400   {string}  string  "invalid request body"
-// @Failure      401   {string}  string  "email not registered"
-// @Failure      422   {string}  string  "incorrect password"
-// @Failure      500   {string}  string  "internal error"
+// @Param        body  query     model.Credentials  true  "Credentials"
+// @Success      200   {object}  model.AuthResult
+// @Failure      400   {object}  model.Problem
+// @Failure      401   {object}  model.Problem
+// @Failure      500   {object}  model.Problem
 // @Router       /auth/login [post]
 func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 	var cre model.Credentials
 	if err := ctx.ShouldBind(&cre); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := h.service.Login(ctx, cre)
 	if err != nil {
 		status := http.StatusInternalServerError
+		detail := err.Error()
+
 		if errors.Is(err, service.ErrEmailUnregistered) {
 			status = http.StatusUnauthorized
+			detail = "Email is not registered"
 		}
 		if errors.Is(err, service.ErrPasswordIncorrect) {
 			status = http.StatusUnauthorized
+			detail = "Password is incorrect"
 		}
-		ctx.AbortWithStatusJSON(status, err.Error())
+
+		model.AbortProblem(ctx, status, detail)
 		return
 	}
 
@@ -92,18 +100,18 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 // @Produce      json
 // @Security     BearerAuth
 // @Success      200  {array}   model.UserIdentified
-// @Failure      500  {string}  string  "internal error"
+// @Failure      401  {object}  model.Problem
+// @Failure      500  {object}  model.Problem
 // @Router       /users/ [get]
 func (h *UserHandler) HandleList(ctx *gin.Context) {
-	_, exists := ctx.Get("user.id")
-	if !exists {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+	if _, exists := ctx.Get("user.id"); !exists {
+		model.AbortProblem(ctx, http.StatusUnauthorized, "")
 		return
 	}
 
 	users, err := h.service.List(ctx)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		model.AbortProblem(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -119,30 +127,31 @@ func (h *UserHandler) HandleList(ctx *gin.Context) {
 // @Param        id    path      int         true  "User ID"
 // @Param        body  body      model.User  true  "User fields"
 // @Success      200   {object}  model.UserIdentified
-// @Failure      400   {string}  string  "invalid request"
-// @Failure      500   {string}  string  "internal error"
+// @Failure      400   {object}  model.Problem
+// @Failure      401   {object}  model.Problem
+// @Failure      500   {object}  model.Problem
 // @Router       /users/{id} [patch]
 func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if idCtx, exists := ctx.Get("user.id"); !exists || idCtx != id {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+		model.AbortProblem(ctx, http.StatusUnauthorized, "")
 		return
 	}
 
 	var new model.User
 	if err := ctx.ShouldBind(&new); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	user, err := h.service.Edit(ctx, id, new)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		model.AbortProblem(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -158,46 +167,47 @@ func (h *UserHandler) HandlePatch(ctx *gin.Context) {
 // @Param        id       path  int   true  "User ID"
 // @Param        picture  formData  file  false  "Picture file (omit or send empty body to clear)"
 // @Success      200  "OK"
-// @Failure      400  {string}  string  "invalid request"
-// @Failure      413  {string}  string  "file too large"
-// @Failure      422  {string}  string  "unsupported image format"
-// @Failure      500  {string}  string  "internal error"
+// @Failure      400  {object}  model.Problem
+// @Failure      401  {object}  model.Problem
+// @Failure      413  {object}  model.Problem
+// @Failure      422  {object}  model.Problem
+// @Failure      500  {object}  model.Problem
 // @Router       /users/{id}/picture [put]
 func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if idCtx, exists := ctx.Get("user.id"); !exists || idCtx != id {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+		model.AbortProblem(ctx, http.StatusUnauthorized, "")
 		return
 	}
 
 	var data []byte
 	if fileHeader, err := ctx.FormFile("picture"); err == nil {
 		if fileHeader.Size > maxPictureSize {
-			ctx.AbortWithStatusJSON(http.StatusRequestEntityTooLarge, "picture: file too large")
+			model.AbortProblem(ctx, http.StatusRequestEntityTooLarge, "picture: file too large")
 			return
 		}
 
 		file, err := fileHeader.Open()
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+			model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
 			return
 		}
 		defer file.Close()
 
 		data, err = io.ReadAll(file)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+			model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
 			return
 		}
 	} else {
 		body, err := io.ReadAll(http.MaxBytesReader(ctx.Writer, ctx.Request.Body, maxPictureSize))
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusRequestEntityTooLarge, "picture: file too large")
+			model.AbortProblem(ctx, http.StatusRequestEntityTooLarge, "picture: file too large")
 			return
 		}
 		data = body
@@ -212,7 +222,7 @@ func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 		if errors.Is(err, service.ErrImageUnsupported) {
 			status = http.StatusUnprocessableEntity
 		}
-		ctx.AbortWithStatusJSON(status, err.Error())
+		model.AbortProblem(ctx, status, err.Error())
 		return
 	}
 
@@ -225,24 +235,25 @@ func (h *UserHandler) HandlePutPicture(ctx *gin.Context) {
 // @Security     BearerAuth
 // @Param        id  path  int  true  "User ID"
 // @Success      200  "OK"
-// @Failure      400  {string}  string  "invalid request"
-// @Failure      500  {string}  string  "internal error"
+// @Failure      400  {object}  model.Problem
+// @Failure      401  {object}  model.Problem
+// @Failure      500  {object}  model.Problem
 // @Router       /users/{id} [delete]
 func (h *UserHandler) HandleDelete(ctx *gin.Context) {
 	var id model.Id
 	if err := ctx.ShouldBindUri(&id); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, err.Error())
+		model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if idCtx, exists := ctx.Get("user.id"); !exists || idCtx != id {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+		model.AbortProblem(ctx, http.StatusUnauthorized, "")
 		return
 	}
 
 	err := h.service.Delete(ctx, id)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err.Error())
+		model.AbortProblem(ctx, http.StatusInternalServerError, err.Error())
 		return
 	}
 

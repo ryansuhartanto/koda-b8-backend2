@@ -14,10 +14,17 @@ var ErrUnexpectedSigningMethod = errors.New("middleware: unexpected signing meth
 
 func AuthMiddleware(jwtKey []byte) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		var www strings.Builder
+		www.WriteString("Bearer realm=")
+		www.WriteRune('"')
+		www.WriteString(ctx.FullPath())
+		www.WriteRune('"')
+
 		auth := ctx.GetHeader("Authorization")
 		tokenString, found := strings.CutPrefix(auth, "Bearer ")
 		if !found {
-			ctx.AbortWithStatus(http.StatusUnauthorized)
+			ctx.Header("WWW-Authenticate", www.String())
+			model.AbortProblem(ctx, http.StatusUnauthorized, "missing bearer token")
 			return
 		}
 
@@ -29,13 +36,17 @@ func AuthMiddleware(jwtKey []byte) gin.HandlerFunc {
 			return jwtKey, nil
 		})
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+			www.WriteString(`,error="invalid_token"`)
+			ctx.Header("WWW-Authenticate", www.String())
+			model.AbortProblem(ctx, http.StatusUnauthorized, err.Error())
 			return
 		}
 
 		userId, err := claims.GetId()
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, err.Error())
+			www.WriteString(`,error="invalid_token"`)
+			ctx.Header("WWW-Authenticate", www.String())
+			model.AbortProblem(ctx, http.StatusUnauthorized, err.Error())
 			return
 		}
 

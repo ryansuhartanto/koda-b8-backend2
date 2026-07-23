@@ -13,7 +13,6 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
 	"github.com/ryansuhartanto/koda-b8-backend1/internal/repository"
@@ -35,36 +34,13 @@ func NewUserService(
 	}
 }
 
-type AuthResult struct {
-	*model.UserIdentified
-	Token string `json:"jwt" format:"jwt"`
-}
-
-func NewAuthResult(
-	user *model.UserIdentified,
-	key []byte,
-) (*AuthResult, error) {
-	claims := model.NewAuthClaim(user)
-	token := jwt.NewWithClaims(jwt.SigningMethodHS384, claims)
-	tokenString, err := token.SignedString(key)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &AuthResult{
-		user,
-		tokenString,
-	}, nil
-}
-
 func (s *UserService) List(ctx context.Context) ([]model.UserIdentified, error) {
 	return s.repository.FindAll(ctx)
 }
 
 var ErrEmailConflict = errors.New("service: email already exists")
 
-func (s *UserService) Register(ctx context.Context, new model.User) (*AuthResult, error) {
+func (s *UserService) Register(ctx context.Context, new model.User) (*model.AuthResult, error) {
 	user, err := s.repository.FindEmail(ctx, new.Credentials.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
@@ -91,7 +67,7 @@ func (s *UserService) Register(ctx context.Context, new model.User) (*AuthResult
 		return nil, err
 	}
 
-	result, err := NewAuthResult(user, s.jwtKey)
+	result, err := model.NewAuthResult(user, s.jwtKey)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +78,7 @@ func (s *UserService) Register(ctx context.Context, new model.User) (*AuthResult
 var ErrEmailUnregistered = errors.New("service: email is not registered")
 var ErrPasswordIncorrect = errors.New("service: password is incorrect")
 
-func (s *UserService) Login(ctx context.Context, cre model.Credentials) (*AuthResult, error) {
+func (s *UserService) Login(ctx context.Context, cre model.Credentials) (*model.AuthResult, error) {
 	user, err := s.repository.FindEmail(ctx, cre.Email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return nil, err
@@ -121,7 +97,7 @@ func (s *UserService) Login(ctx context.Context, cre model.Credentials) (*AuthRe
 		return nil, errors.Join(ErrPasswordIncorrect, err)
 	}
 
-	result, err := NewAuthResult(user, s.jwtKey)
+	result, err := model.NewAuthResult(user, s.jwtKey)
 	if err != nil {
 		return nil, err
 	}

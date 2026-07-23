@@ -26,12 +26,18 @@ function authHeader(): Record<string, string> {
 	return { Authorization: `Bearer ${sessionStorage.getItem("token")}` };
 }
 
+type Problem = {
+	title: string;
+	status: number;
+	detail?: string;
+};
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
 	const res = await fetch(`${URL}${path}`, init);
 
 	if (!res.ok) {
-		const message = (await res.json()) as string;
-		throw new Error(message);
+		const problem = (await res.json()) as Problem;
+		throw new Error(problem.detail ?? problem.title);
 	}
 
 	return res.json() as Promise<T>;
@@ -96,8 +102,8 @@ export async function updateUserPicture(
 	});
 
 	if (!res.ok) {
-		const message = (await res.json()) as string;
-		throw new Error(message);
+		const problem = (await res.json()) as Problem;
+		throw new Error(problem.detail ?? problem.title);
 	}
 }
 

@@ -8,27 +8,19 @@ const docTemplate = `{
     "schemes": {{ marshal .Schemes }},
     "components": {
         "schemas": {
-            "model.Credentials": {
+            "model.AuthResult": {
                 "properties": {
                     "email": {
                         "form": "email",
+                        "format": "email",
                         "type": "string"
                     },
-                    "password": {
-                        "form": "password",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "email",
-                    "password"
-                ],
-                "type": "object"
-            },
-            "model.User": {
-                "properties": {
-                    "email": {
-                        "form": "email",
+                    "id": {
+                        "form": "id",
+                        "type": "integer"
+                    },
+                    "jwt": {
+                        "format": "jwt",
                         "type": "string"
                     },
                     "name": {
@@ -37,6 +29,81 @@ const docTemplate = `{
                     },
                     "password": {
                         "form": "password",
+                        "format": "byte",
+                        "type": "string"
+                    },
+                    "picture_url": {
+                        "form": "picture_url",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "name",
+                    "password"
+                ],
+                "type": "object"
+            },
+            "model.HandlerResult-array_model_UserIdentified": {
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "results": {
+                        "items": {
+                            "$ref": "#/components/schemas/model.UserIdentified"
+                        },
+                        "type": "array",
+                        "uniqueItems": false
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "model.HandlerResult-model_AuthResult": {
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "results": {
+                        "$ref": "#/components/schemas/model.AuthResult"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "model.HandlerResult-model_UserIdentified": {
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "results": {
+                        "$ref": "#/components/schemas/model.UserIdentified"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "model.User": {
+                "properties": {
+                    "email": {
+                        "form": "email",
+                        "format": "email",
+                        "type": "string"
+                    },
+                    "name": {
+                        "form": "name",
+                        "type": "string"
+                    },
+                    "password": {
+                        "form": "password",
+                        "format": "byte",
                         "type": "string"
                     },
                     "picture_url": {
@@ -55,6 +122,7 @@ const docTemplate = `{
                 "properties": {
                     "email": {
                         "form": "email",
+                        "format": "email",
                         "type": "string"
                     },
                     "id": {
@@ -67,40 +135,7 @@ const docTemplate = `{
                     },
                     "password": {
                         "form": "password",
-                        "type": "string"
-                    },
-                    "picture_url": {
-                        "form": "picture_url",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "email",
-                    "name",
-                    "password"
-                ],
-                "type": "object"
-            },
-            "service.AuthResult": {
-                "properties": {
-                    "email": {
-                        "form": "email",
-                        "type": "string"
-                    },
-                    "id": {
-                        "form": "id",
-                        "type": "integer"
-                    },
-                    "jwt": {
-                        "format": "jwt",
-                        "type": "string"
-                    },
-                    "name": {
-                        "form": "name",
-                        "type": "string"
-                    },
-                    "password": {
-                        "form": "password",
+                        "format": "byte",
                         "type": "string"
                     },
                     "picture_url": {
@@ -143,42 +178,43 @@ const docTemplate = `{
     "paths": {
         "/auth/login": {
             "post": {
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "email",
+                        "required": true,
+                        "schema": {
+                            "form": "email",
+                            "format": "email",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "password",
+                        "required": true,
+                        "schema": {
+                            "form": "password",
+                            "format": "byte",
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "content": {
-                        "application/json": {
-                            "schema": {
-                                "oneOf": [
-                                    {
-                                        "type": "object"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/model.Credentials",
-                                        "summary": "body",
-                                        "description": "Credentials"
-                                    }
-                                ]
-                            }
-                        },
                         "application/x-www-form-urlencoded": {
                             "schema": {
                                 "type": "string"
                             }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "type": "object"
-                            }
                         }
-                    },
-                    "description": "Credentials",
-                    "required": true
+                    }
                 },
                 "responses": {
                     "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/service.AuthResult"
+                                    "$ref": "#/components/schemas/model.HandlerResult-model_AuthResult"
                                 }
                             }
                         },
@@ -268,7 +304,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/service.AuthResult"
+                                    "$ref": "#/components/schemas/model.HandlerResult-model_AuthResult"
                                 }
                             }
                         },
@@ -318,10 +354,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "items": {
-                                        "$ref": "#/components/schemas/model.UserIdentified"
-                                    },
-                                    "type": "array"
+                                    "$ref": "#/components/schemas/model.HandlerResult-array_model_UserIdentified"
                                 }
                             }
                         },
@@ -444,7 +477,7 @@ const docTemplate = `{
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/model.UserIdentified"
+                                    "$ref": "#/components/schemas/model.HandlerResult-model_UserIdentified"
                                 }
                             }
                         },
