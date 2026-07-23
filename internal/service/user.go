@@ -150,7 +150,7 @@ func (s *UserService) UpdatePicture(ctx context.Context, id model.Id, data []byt
 		return ErrImageUnsupported
 	}
 
-	file := filepath.Join("uploads", fmt.Sprintf("user-picture-%v%v", id, ext[0]))
+	file := filepath.Join("uploads", fmt.Sprintf("user-picture-%v%v", id.Id, ext[0]))
 	if err := os.WriteFile(file, data, 0644); err != nil {
 		return err
 	}
