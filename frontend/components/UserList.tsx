@@ -44,9 +44,37 @@ export function UserList(): JSX.Element {
 						name={user.name}
 						src={assetUrl(user.picture_url)}
 					/>
-					<div>
-						<p className="text-sm font-medium text-zinc-900">{user.name}</p>
-						<p className="text-xs text-zinc-500">{user.email}</p>
+					<div className="grow flex flex-col gap-2">
+						<div>
+							<p className="text-sm font-medium text-zinc-900">{user.name}</p>
+							<p className="text-xs text-zinc-500">{user.email}</p>
+						</div>
+						<div className="grid grid-cols-[1fr_auto] text-[0.625rem] text-zinc-400">
+							{user.created_at && (
+								<>
+									<span>Created</span>
+									<span className="text-right">
+										{new Date(user.created_at).toLocaleString()}
+									</span>
+								</>
+							)}
+							{user.updated_at && (
+								<>
+									<span>Updated</span>
+									<span className="text-right">
+										{new Date(user.updated_at).toLocaleString()}
+									</span>
+								</>
+							)}
+							{user.profile_updated_at && (
+								<>
+									<span>Profile</span>
+									<span className="text-right">
+										{new Date(user.profile_updated_at).toLocaleString()}
+									</span>
+								</>
+							)}
+						</div>
 					</div>
 				</li>
 			))}

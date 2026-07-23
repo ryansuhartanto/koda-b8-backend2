@@ -5,6 +5,9 @@ export type Identified = {
 export type User = {
 	name: string;
 	picture_url?: string;
+	created_at?: string;
+	updated_at?: string;
+	profile_updated_at?: string;
 } & Credentials;
 
 type Credentials = {
