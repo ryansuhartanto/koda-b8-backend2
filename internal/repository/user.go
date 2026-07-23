@@ -56,6 +56,7 @@ func (r *UserRepository) FindAll(ctx context.Context, p model.Pagination) ([]mod
 			profiles.picture_url,
 			profiles.updated_at AS profile_updated_at
 		FROM users JOIN profiles USING (id)
+		WHERE @query = '' OR profiles.name ILIKE '%' || @query || '%' OR users.email ILIKE '%' || @query || '%'
 		ORDER BY users.id
 		LIMIT @limit OFFSET @offset
 	`

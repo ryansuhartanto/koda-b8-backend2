@@ -98,8 +98,9 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 // @Tags     users
 // @Produce  json
 // @Security BearerAuth
-// @Param    limit    query    int false "Max results (default 20, max 100)"
-// @Param    offset   query    int false "Results to skip"
+// @Param    limit    query    int    false "Max results (default 20, max 100)"
+// @Param    offset   query    int    false "Results to skip"
+// @Param    query    query    string false "Search by name or email"
 // @Success  200      {array}  model.UserIdentified
 // @Failure  400      {object} model.Problem
 // @Failure  401      {object} model.Problem
