@@ -34,8 +34,14 @@ func NewUserService(
 	}
 }
 
-func (s *UserService) List(ctx context.Context) ([]model.UserIdentified, error) {
-	return s.repository.FindAll(ctx)
+const defaultLimit = 20
+
+func (s *UserService) List(ctx context.Context, p model.Pagination) ([]model.UserIdentified, error) {
+	if p.Limit <= 0 {
+		p.Limit = defaultLimit
+	}
+
+	return s.repository.FindAll(ctx, p)
 }
 
 var ErrEmailConflict = errors.New("service: email already exists")

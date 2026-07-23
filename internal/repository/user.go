@@ -48,7 +48,7 @@ func (r *UserRepository) Add(ctx context.Context, new model.User) (*model.UserId
 	return user, nil
 }
 
-func (r *UserRepository) FindAll(ctx context.Context) ([]model.UserIdentified, error) {
+func (r *UserRepository) FindAll(ctx context.Context, p model.Pagination) ([]model.UserIdentified, error) {
 	sql := `
 		SELECT
 			users.*,
@@ -56,8 +56,11 @@ func (r *UserRepository) FindAll(ctx context.Context) ([]model.UserIdentified, e
 			profiles.picture_url,
 			profiles.updated_at AS profile_updated_at
 		FROM users JOIN profiles USING (id)
+		ORDER BY users.id
+		LIMIT @limit OFFSET @offset
 	`
-	rows, err := r.querier.Query(ctx, sql)
+	args := StrictFlattenArgs(p)
+	rows, err := r.querier.Query(ctx, sql, args)
 	if err != nil {
 		return nil, err
 	}

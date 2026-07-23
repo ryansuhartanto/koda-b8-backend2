@@ -98,7 +98,10 @@ func (h *UserHandler) HandleLogin(ctx *gin.Context) {
 // @Tags     users
 // @Produce  json
 // @Security BearerAuth
+// @Param    limit    query    int false "Max results (default 20, max 100)"
+// @Param    offset   query    int false "Results to skip"
 // @Success  200      {array}  model.UserIdentified
+// @Failure  400      {object} model.Problem
 // @Failure  401      {object} model.Problem
 // @Failure  500      {object} model.Problem
 // @Router   /users/ [get]
@@ -108,7 +111,13 @@ func (h *UserHandler) HandleList(ctx *gin.Context) {
 		return
 	}
 
-	users, err := h.service.List(ctx)
+	var pagination model.Pagination
+	if err := ctx.ShouldBindQuery(&pagination); err != nil {
+		model.AbortProblem(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	users, err := h.service.List(ctx, pagination)
 	if err != nil {
 		model.AbortProblem(ctx, http.StatusInternalServerError, err.Error())
 		return

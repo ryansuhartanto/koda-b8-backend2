@@ -72,8 +72,15 @@ export async function login(
 	return result;
 }
 
-export async function listUsers(): Promise<Array<User & Identified>> {
-	return request("/users/", {
+export async function listUsers(pagination: {
+	limit: number;
+	offset: number;
+}): Promise<Array<User & Identified>> {
+	const query = new URLSearchParams({
+		limit: String(pagination.limit),
+		offset: String(pagination.offset),
+	});
+	return request(`/users/?${query}`, {
 		method: "GET",
 		headers: authHeader(),
 	});
