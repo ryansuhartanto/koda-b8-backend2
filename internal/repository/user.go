@@ -25,7 +25,12 @@ func (r *UserRepository) Add(ctx context.Context, new model.User) (*model.UserId
 			VALUES ((SELECT id FROM new_user), @name, @picture_url)
 			RETURNING *
 		)
-		SELECT * FROM new_user JOIN new_profile USING (id)
+		SELECT
+			new_user.*,
+			new_profile.name,
+			new_profile.picture_url,
+			new_profile.updated_at AS profile_updated_at
+		FROM new_user JOIN new_profile USING (id)
 	`
 	args := StrictFlattenArgs(new)
 	rows, err := r.querier.Query(ctx, sql, args)
@@ -45,7 +50,12 @@ func (r *UserRepository) Add(ctx context.Context, new model.User) (*model.UserId
 
 func (r *UserRepository) FindAll(ctx context.Context) ([]model.UserIdentified, error) {
 	sql := `
-		SELECT * FROM users JOIN profiles USING (id)
+		SELECT
+			users.*,
+			profiles.name,
+			profiles.picture_url,
+			profiles.updated_at AS profile_updated_at
+		FROM users JOIN profiles USING (id)
 	`
 	rows, err := r.querier.Query(ctx, sql)
 	if err != nil {
@@ -64,7 +74,12 @@ func (r *UserRepository) FindAll(ctx context.Context) ([]model.UserIdentified, e
 
 func (r *UserRepository) FindEmail(ctx context.Context, email model.Email) (*model.UserIdentified, error) {
 	sql := `
-		SELECT * FROM users JOIN profiles USING (id)
+		SELECT
+			users.*,
+			profiles.name,
+			profiles.picture_url,
+			profiles.updated_at AS profile_updated_at
+		FROM users JOIN profiles USING (id)
 		WHERE users.email = @email
 	`
 	args := pgx.StrictNamedArgs{
@@ -87,7 +102,12 @@ func (r *UserRepository) FindEmail(ctx context.Context, email model.Email) (*mod
 
 func (r *UserRepository) Find(ctx context.Context, id model.Id) (*model.UserIdentified, error) {
 	sql := `
-		SELECT * FROM users JOIN profiles USING (id)
+		SELECT
+			users.*,
+			profiles.name,
+			profiles.picture_url,
+			profiles.updated_at AS profile_updated_at
+		FROM users JOIN profiles USING (id)
 		WHERE users.id = @id
 	`
 	args := StrictFlattenArgs(id)
@@ -109,13 +129,29 @@ func (r *UserRepository) Find(ctx context.Context, id model.Id) (*model.UserIden
 func (r *UserRepository) Update(ctx context.Context, id model.Id, new model.User) (*model.UserIdentified, error) {
 	sql := `
 		WITH updated_user AS (
-			UPDATE users SET email = @email, password = @password WHERE id = @id RETURNING *
+			UPDATE users SET
+				email = @email,
+				password = @password
+			WHERE id = @id
+			RETURNING *
 		), updated_profile AS (
-			UPDATE profiles SET name = @name, picture_url = COALESCE(@picture_url, picture_url) WHERE id = @id RETURNING *
+			UPDATE profiles SET
+				name = @name,
+				picture_url = COALESCE(@picture_url,
+				picture_url) WHERE id = @id
+			RETURNING *
 		)
-		SELECT * FROM updated_user JOIN updated_profile USING (id)
+		SELECT
+			updated_user.*,
+			updated_profile.name,
+			updated_profile.picture_url,
+			updated_profile.updated_at AS profile_updated_at
+		FROM updated_user JOIN updated_profile USING (id)
 	`
-	args := StrictFlattenArgs(model.UserIdentified{Id: id, User: new})
+	args := StrictFlattenArgs(struct {
+		model.Id
+		model.User
+	}{id, new})
 	rows, err := r.querier.Query(ctx, sql, args)
 	if err != nil {
 		return nil, err

@@ -1,13 +1,26 @@
 package model
 
+import "time"
+
 type Email string
 
 type Password string
 
 func (Password) IsZero() bool { return true }
 
+type Timestamps struct {
+	CreatedAt time.Time `db:"created_at" uri:"created_at" form:"created_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" uri:"updated_at" form:"updated_at" json:"updated_at"`
+}
+
+type ProfileTimestamps struct {
+	ProfileUpdatedAt time.Time `db:"profile_updated_at" uri:"profile_updated_at" form:"profile_updated_at" json:"profile_updated_at"`
+}
+
 type UserIdentified struct {
 	Id
+	Timestamps
+	ProfileTimestamps
 	User
 }
 

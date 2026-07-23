@@ -22,8 +22,11 @@ run = "go tool swag init --v3.1"
 usage = 'arg "[name]"'
 run = "migrate create -ext sql -dir internal/db/migrations -seq ${usage_name}"
 
+[tasks.db]
+run = "migrate -database pgx5://: -path internal/db/migrations"
+
 [tasks."db:up"]
-run = "migrate -database pgx5://: -path internal/db/migrations up"
+run = "mise run db up"
 
 [tasks."db:down"]
-run = "migrate -database pgx5://: -path internal/db/migrations down"
+run = "mise run db down"
