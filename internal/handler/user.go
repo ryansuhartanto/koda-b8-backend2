@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/service"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/model"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/service"
 )
 
 const maxPictureSize = 2 << 20 // 2 MiB

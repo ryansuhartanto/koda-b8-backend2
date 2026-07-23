@@ -1,5 +1,6 @@
 {
 	"private": true,
+	"repository": "ryansuhartanto/koda-b8-backend2",
 	"type": "module",
 	"imports": {
 		"#/*": [

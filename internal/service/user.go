@@ -14,8 +14,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/repository"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/model"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/repository"
 )
 
 type UserService struct {

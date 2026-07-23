@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/db"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/db"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/model"
 )
 
 type UserRepository struct {

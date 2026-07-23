@@ -12,8 +12,8 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/db"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/di"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/db"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/di"
 )
 
 // @title           GoREST

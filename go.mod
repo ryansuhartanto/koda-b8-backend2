@@ -1,4 +1,4 @@
-module github.com/ryansuhartanto/koda-b8-backend1
+module github.com/ryansuhartanto/koda-b8-backend2
 
 go 1.26.5
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/model"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/model"
 )
 
 var ErrUnexpectedSigningMethod = errors.New("middleware: unexpected signing method")

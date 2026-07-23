@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/db"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/handler"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/middleware"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/repository"
-	"github.com/ryansuhartanto/koda-b8-backend1/internal/service"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/db"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/handler"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/middleware"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/repository"
+	"github.com/ryansuhartanto/koda-b8-backend2/internal/service"
 )
 
 type Container struct {
